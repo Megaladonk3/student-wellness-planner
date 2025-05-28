@@ -19,6 +19,7 @@
             --progress-bar-bg: #e0e0e0;
             --progress-bar-fill-1: #b298dc; /* Medium purple */
             --progress-bar-fill-2: #8a63d2; /* Darker purple */
+            --progress-bar-fill-complete: #4CAF50; /* Green for 100% completion */ /* ADDED */
             --icon-color: #333333;
             --button-bg: #e6e6fa; /* Lavender for buttons */
             --button-text: #333;
@@ -38,6 +39,7 @@
             --progress-bar-bg: #555555;
             --progress-bar-fill-1: #9370DB; /* Medium Orchid */
             --progress-bar-fill-2: #8a63d2;
+            --progress-bar-fill-complete: #67BD67; /* Darker green for dark mode */ /* ADDED */
             --icon-color: #eeeeee;
             --button-bg: #504660;
             --button-text: #eeeeee;
@@ -254,7 +256,7 @@
         }
          .checklist-widget .widget-header h2 {
             margin-bottom: 0;
-         }
+           }
 
         .checklist-widget .close-btn {
             background: none;
@@ -304,15 +306,19 @@
             height: 100%;
             background-color: var(--progress-bar-fill-1);
             border-radius: 10px 0 0 10px; /* Smooth edge for partial fill */
-            transition: width 0.5s ease-in-out;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease; /* Added background-color transition */
             text-align: center;
             color: white;
             font-size: 0.8em;
             line-height: 20px;
+            display: flex; /* Use flex to center text horizontally and vertically */ /* ADDED */
+            align-items: center; /* ADDED */
+            justify-content: center; /* ADDED */
+            position: relative; /* For the text to be correctly positioned */ /* ADDED */
         }
          .progress-bar.full {
             border-radius: 10px; /* Full bar covers all corners */
-         }
+           }
 
         .progress-label {
             font-size: 0.9em;
@@ -413,7 +419,7 @@
             position: absolute;
             width: 8px;
             height: 16px;
-            background-color: var(--accent-color);
+            /* background-color set by JS to be more visible */
             opacity: 0;
             animation: fall 3s ease-out forwards;
         }
@@ -482,13 +488,13 @@
                 background-color: var(--header-bg); /* Give it a backdrop */
                 padding: 5px;
                 border-radius: 8px;
-             }
+               }
              .mood-tracker {
                 padding: 5px;
-             }
+               }
              .theme-toggle {
                 padding: 5px 8px;
-             }
+               }
         }
 
     </style>
@@ -537,7 +543,7 @@
                 </div>
                 <ul>
                     <li>
-                        <input type="checkbox" id="taskFinished" data-task-name="Finished TODO" checked>
+                        <input type="checkbox" id="taskFinished" data-task-name="Finished TODO">
                         <label for="taskFinished">Finished TODO</label>
                     </li>
                     <li>
@@ -548,18 +554,18 @@
                         <input type="checkbox" id="taskExtra1" data-task-name="Plan study session">
                         <label for="taskExtra1">Plan study session</label>
                     </li>
+                    <!-- New checklist item for better demonstration -->
+                    <li>
+                        <input type="checkbox" id="taskReadChapter" data-task-name="Read Chapter 5">
+                        <label for="taskReadChapter">Read Chapter 5</label>
+                    </li>
                 </ul>
+                <!-- Refactored to a single progress bar for the entire checklist -->
                 <div class="progress-item">
                     <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar1" style="width: 70%;"></div>
+                        <div class="progress-bar" id="checklistProgressBar"></div>
                     </div>
-                    <p class="progress-label">Task 1 Progress Bar</p>
-                </div>
-                <div class="progress-item">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar2" style="width: 30%; background-color: var(--progress-bar-fill-2);"></div>
-                    </div>
-                    <p class="progress-label">Task 2 Progress Bar</p>
+                    <p class="progress-label" id="checklistProgressLabel">0% Complete</p>
                 </div>
             </section>
         </div>
@@ -624,38 +630,73 @@
             const quoteElement = document.getElementById('motivationalQuoteP');
             quoteElement.textContent = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
 
-            // --- CHECKLIST ---
+            // --- CHECKLIST WIDGET CONTROLS (Close Button) ---
             const checklistWidget = document.getElementById('checklistWidget');
             const closeChecklistBtn = document.getElementById('closeChecklistBtn');
             if (closeChecklistBtn) {
-                 closeChecklistBtn.addEventListener('click', () => {
+                closeChecklistBtn.addEventListener('click', () => {
                     checklistWidget.style.display = 'none';
                 });
             }
 
+            // --- CHECKLIST PROGRESS LOGIC ---
             const checklistCheckboxes = checklistWidget.querySelectorAll('input[type="checkbox"]');
-            checklistCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        triggerConfetti(this);
-                        // Example: Update progress bar if specific tasks are checked
-                        // This is a simple example; real progress would be more complex
-                        if (this.id === 'taskFinished') progressBar1.style.width = '100%';
-                        if (this.id === 'taskUnfinished' && this.checked) progressBar2.style.width = '50%'; // If "unfinished" is now finished
-                    } else {
-                         if (this.id === 'taskFinished') progressBar1.style.width = '70%'; // Reset
+            const checklistProgressBar = document.getElementById('checklistProgressBar');
+            const checklistProgressLabel = document.getElementById('checklistProgressLabel');
+
+            function updateChecklistProgress() {
+                const totalCheckboxes = checklistCheckboxes.length;
+                let checkedCount = 0;
+                checklistCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        checkedCount++;
                     }
                 });
+
+                // Calculate progress, rounding to the nearest integer
+                const progressPercentage = totalCheckboxes === 0 ? 0 : Math.round((checkedCount / totalCheckboxes) * 100);
+                
+                // Update progress bar width and display percentage inside the bar
+                checklistProgressBar.style.width = `${progressPercentage}%`;
+                checklistProgressBar.textContent = `${progressPercentage}%`; 
+                
+                // Update the label below the bar
+                checklistProgressLabel.textContent = `${checkedCount} of ${totalCheckboxes} tasks complete (${progressPercentage}%)`;
+
+                // Adjust progress bar color based on percentage
+                if (progressPercentage === 100) {
+                    checklistProgressBar.classList.add('full');
+                    checklistProgressBar.style.backgroundColor = 'var(--progress-bar-fill-complete)'; // Success color
+                } else {
+                    checklistProgressBar.classList.remove('full');
+                    // Change color based on partial progress
+                    if (progressPercentage < 50) {
+                        checklistProgressBar.style.backgroundColor = 'var(--progress-bar-fill-1)';
+                    } else {
+                        checklistProgressBar.style.backgroundColor = 'var(--progress-bar-fill-2)';
+                    }
+                }
+            }
+
+            // Set initial state of checkboxes (all unchecked)
+            checklistCheckboxes.forEach(checkbox => {
+                checkbox.checked = false; 
             });
+
+            // Attach event listener to each checkbox
+            checklistCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Trigger confetti only when a checkbox is checked
+                    if (this.checked) {
+                        triggerConfetti(); // Confetti no longer needs the element for positioning
+                    }
+                    updateChecklistProgress(); // Always update progress after a change
+                });
+            });
+
+            // Initial update of the checklist progress when the page loads
+            updateChecklistProgress(); 
             
-            // --- PROGRESS BARS (visual update example) ---
-            const progressBar1 = document.getElementById('progressBar1');
-            const progressBar2 = document.getElementById('progressBar2');
-            // Set initial text if progress is >0
-            if (parseInt(progressBar1.style.width) > 10) progressBar1.textContent = progressBar1.style.width;
-            if (parseInt(progressBar2.style.width) > 10) progressBar2.textContent = progressBar2.style.width;
-
-
             // --- ZODIAC PREDICTION ---
             const zodiacLink = document.getElementById('zodiacLink');
             const zodiacPredictionText = document.getElementById('zodiacPredictionText');
@@ -682,23 +723,21 @@
                 });
             });
 
-            // --- CONFETTI ---
+            // --- CONFETTI FUNCTION ---
             const confettiContainer = document.getElementById('confetti-container');
-            function triggerConfetti(element) {
-                for (let i = 0; i < 30; i++) { // Create 30 pieces of confetti
+            function triggerConfetti() { // Removed element parameter as confetti falls from top now
+                confettiContainer.innerHTML = ''; // Clear existing confetti for a fresh burst
+
+                for (let i = 0; i < 50; i++) { // Create 50 pieces of confetti
                     const piece = document.createElement('div');
                     piece.classList.add('confetti-piece');
                     
-                    // Position near the checkbox that was clicked
-                    const rect = element ? element.getBoundingClientRect() : {top: window.innerHeight/2, left: window.innerWidth/2};
-                    const initialX = rect.left + window.scrollX + (rect.width / 2);
-                    const initialY = rect.top + window.scrollY + (rect.height / 2);
+                    // Position confetti to fall from the top of the viewport
+                    piece.style.left = `${Math.random() * window.innerWidth}px`; 
+                    piece.style.top = `${-20 - (Math.random() * 50)}px`; // Start slightly above the viewport randomly
 
-                    piece.style.left = initialX + (Math.random() * 50 - 25) + 'px'; // Spread horizontally
-                    piece.style.top = initialY + (Math.random() * 20 - 10) + 'px'; // Spread vertically
-
-                    // Randomize color and shape slightly
-                    const colors = ['var(--accent-color)', '#FFC107', '#4CAF50', '#2196F3', '#E91E63'];
+                    // Randomize color and shape slightly (using visible colors)
+                    const colors = ['#FFC107', '#4CAF50', '#2196F3', '#E91E63', '#9C27B0', '#FFEB3B']; 
                     piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     piece.style.width = (Math.random() * 6 + 4) + 'px'; // 4px to 10px wide
                     piece.style.height = (Math.random() * 10 + 6) + 'px'; // 6px to 16px tall
@@ -713,19 +752,26 @@
                     // Remove piece after animation
                     setTimeout(() => {
                         piece.remove();
-                    }, parseFloat(piece.style.animationDuration)  * 1000 + parseFloat(piece.style.animationDelay) * 1000 + 100);
+                    }, parseFloat(piece.style.animationDuration) * 1000 + parseFloat(piece.style.animationDelay) * 1000 + 100);
                 }
             }
             
             // --- PLACEHOLDER ACTIONS ---
             document.getElementById('newPageBtn').addEventListener('click', () => alert('+ New Page clicked! (Functionality to be implemented)'));
+            // Added Enter key press for search
+            document.getElementById('searchInput').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    document.getElementById('searchButton').click();
+                }
+            });
             document.getElementById('searchButton').addEventListener('click', () => {
                 const searchTerm = document.getElementById('searchInput').value;
                 if(searchTerm) alert(`Searching for: ${searchTerm} (Search functionality to be implemented)`);
                 else alert('Please enter a search term.');
             });
-            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault to allow navigation
-            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault to allow navigation
+            // Changed to allow actual navigation for demo purposes
+            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ alert('Navigating to Home page/section.'); }); 
+            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ alert('Navigating to About Us page/section.'); });
             document.getElementById('navResources').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to Resources page/section.'); });
 
         });
