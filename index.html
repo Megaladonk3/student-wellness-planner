@@ -19,7 +19,7 @@
             --progress-bar-bg: #e0e0e0;
             --progress-bar-fill-1: #b298dc; /* Medium purple */
             --progress-bar-fill-2: #8a63d2; /* Darker purple */
-            --progress-bar-fill-complete: #4CAF50; /* Green for 100% completion */ /* ADDED */
+            --progress-bar-fill-complete: #4CAF50; /* Green for 100% completion */
             --icon-color: #333333;
             --button-bg: #e6e6fa; /* Lavender for buttons */
             --button-text: #333;
@@ -39,7 +39,7 @@
             --progress-bar-bg: #555555;
             --progress-bar-fill-1: #9370DB; /* Medium Orchid */
             --progress-bar-fill-2: #8a63d2;
-            --progress-bar-fill-complete: #67BD67; /* Darker green for dark mode */ /* ADDED */
+            --progress-bar-fill-complete: #67BD67; /* Darker green for dark mode */
             --icon-color: #eeeeee;
             --button-bg: #504660;
             --button-text: #eeeeee;
@@ -311,10 +311,10 @@
             color: white;
             font-size: 0.8em;
             line-height: 20px;
-            display: flex; /* Use flex to center text horizontally and vertically */ /* ADDED */
-            align-items: center; /* ADDED */
-            justify-content: center; /* ADDED */
-            position: relative; /* For the text to be correctly positioned */ /* ADDED */
+            display: flex; /* Use flex to center text horizontally and vertically */
+            align-items: center;
+            justify-content: center;
+            position: relative; /* For the text to be correctly positioned */
         }
          .progress-bar.full {
             border-radius: 10px; /* Full bar covers all corners */
@@ -769,9 +769,9 @@
                 if(searchTerm) alert(`Searching for: ${searchTerm} (Search functionality to be implemented)`);
                 else alert('Please enter a search term.');
             });
-            // Changed to allow actual navigation for demo purposes
-            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ alert('Navigating to Home page/section.'); }); 
-            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ alert('Navigating to About Us page/section.'); });
+            // Removed alerts from Home and About Us links
+            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ }); 
+            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ });
             document.getElementById('navResources').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to Resources page/section.'); });
 
         });
