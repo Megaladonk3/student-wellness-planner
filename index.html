@@ -497,9 +497,9 @@
     <header>
         <div class="logo"></div>
         <nav>
-            <a href="#home" id="navHome">Home</a>
-            <a href="#about" id="navAbout">About Us</a>
-            <a href="#resources" id="navResources">Resources</a>
+            <a href="index.html" id="navHome">Home</a>
+            <a href="about.html" id="navAbout">About Us</a>
+            <a href="resources.html" id="navResources">Resources</a>
         </nav>
         <div class="search-bar">
             <input type="search" id="searchInput" placeholder="Search...">
@@ -544,7 +544,6 @@
                         <input type="checkbox" id="taskUnfinished" data-task-name="Unfinished TODO">
                         <label for="taskUnfinished">Unfinished TODO</label>
                     </li>
-                    <!-- Example of adding more tasks dynamically -->
                     <li>
                         <input type="checkbox" id="taskExtra1" data-task-name="Plan study session">
                         <label for="taskExtra1">Plan study session</label>
@@ -725,8 +724,8 @@
                 if(searchTerm) alert(`Searching for: ${searchTerm} (Search functionality to be implemented)`);
                 else alert('Please enter a search term.');
             });
-            document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to Home page/section.'); });
-            document.getElementById('navAbout').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to About Us page/section.'); });
+            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault to allow navigation
+            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault to allow navigation
             document.getElementById('navResources').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to Resources page/section.'); });
 
         });
