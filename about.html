@@ -296,9 +296,21 @@
                 if(searchTerm) alert(`Searching for: ${searchTerm} (Search functionality to be implemented)`);
                 else alert('Please enter a search term.');
             });
-            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault
-            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ }); // Removed preventDefault
-            document.getElementById('navResources').addEventListener('click', (e) => { e.preventDefault(); alert('Navigating to Resources page/section.'); });
+            
+            // For navHome and navAbout, the default behavior of the <a> tag is desired (navigation).
+            // No e.preventDefault() is needed if you want them to navigate.
+            // The commented out e.preventDefault() correctly allows navigation.
+            document.getElementById('navHome').addEventListener('click', (e) => { /* e.preventDefault(); */ }); 
+            document.getElementById('navAbout').addEventListener('click', (e) => { /* e.preventDefault(); */ }); 
+            
+            // For navResources:
+            // We remove e.preventDefault() to allow navigation to resources.html
+            // We remove the alert() to get rid of the placeholder popup.
+            document.getElementById('navResources').addEventListener('click', (e) => {
+                // No e.preventDefault(); // This allows the link to navigate
+                // No alert(); // This removes the popup
+                // The link will now navigate to resources.html due to its href attribute
+            });
         });
     </script>
 </body>
