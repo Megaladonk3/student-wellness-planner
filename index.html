@@ -33,6 +33,12 @@
             --input-bg: var(--bg-color); 
             --danger-color: #f44336; 
             --danger-color-hover: #d32f2f;
+
+            /* Custom properties for the prominent TODO button */
+            --new-todo-btn-bg: var(--accent-color);
+            --new-todo-btn-text: #ffffff;
+            --new-todo-btn-shadow: 0 4px 10px rgba(138, 99, 210, 0.35);
+            --new-todo-btn-hover-shadow: 0 6px 14px rgba(138, 99, 210, 0.45);
         }
 
         body.dark-mode {
@@ -62,6 +68,12 @@
             --input-bg: var(--header-bg); 
             --danger-color: #ef5350;
             --danger-color-hover: #e53935;
+
+            /* Custom properties for the prominent TODO button in dark mode */
+            --new-todo-btn-bg: var(--accent-color); 
+            --new-todo-btn-text: #ffffff;
+            --new-todo-btn-shadow: 0 4px 10px rgba(178, 152, 220, 0.35);
+            --new-todo-btn-hover-shadow: 0 6px 14px rgba(178, 152, 220, 0.45);
         }
 
         /* Basic Reset */
@@ -110,18 +122,59 @@
             flex-direction: column; gap: 15px; 
             border-right: 1px solid var(--widget-border-color); z-index: 999; overflow-y: auto;
         }
-        .new-page-btn, .sidebar-tab-button {
-            padding: 12px; background-color: var(--sidebar-button-bg);
-            color: var(--sidebar-button-text); border: 1px solid var(--widget-border-color);
-            border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left;
-            transition: background-color 0.3s, filter 0.2s; width: 100%;
+
+        /* Specific, more prominent styles for the New TODO List button */
+        #newPageBtn {
+            padding: 15px 12px; 
+            background-color: var(--new-todo-btn-bg);
+            color: var(--new-todo-btn-text);
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer;
+            font-weight: 600; 
+            font-size: 1.1em; 
+            text-align: center; 
+            width: 100%;
+            box-shadow: var(--new-todo-btn-shadow);
+            transition: background-color 0.2s, color 0.2s, filter 0.2s, transform 0.2s, box-shadow 0.2s;
+            /* Animation removed */
+        }
+
+        #newPageBtn:hover,
+        #newPageBtn:focus {
+            background-color: var(--new-todo-btn-bg); 
+            color: var(--new-todo-btn-text); 
+            filter: brightness(1.12); 
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: var(--new-todo-btn-hover-shadow);
+            /* Animation play state removed */
+            outline: none; 
+        }
+        
+        /* Styles for the OTHER sidebar tab buttons */
+        .sidebar-tab-button {
+            padding: 12px; 
+            background-color: var(--sidebar-button-bg);
+            color: var(--sidebar-button-text); 
+            border: 1px solid var(--widget-border-color);
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-align: left;
+            transition: background-color 0.3s, filter 0.2s; 
+            width: 100%;
             box-shadow: var(--box-shadow);
+            display: flex; 
+            align-items: center; 
         }
-        .new-page-btn:hover, .sidebar-tab-button:hover {
-            background-color: var(--sidebar-button-hover-bg); filter: brightness(0.98);
+        
+        .sidebar-tab-button:hover { 
+            background-color: var(--sidebar-button-hover-bg); 
+            filter: brightness(0.98);
         }
-        .sidebar-tab-button { display: flex; align-items: center; }
+        
         .sidebar-tab-button .tab-icon { margin-right: 10px; font-size: 1.1em; color: var(--accent-color); }
+
 
         /* Main Content Area */
         .main-content { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -474,7 +527,7 @@
         /* Responsive Adjustments */
         @media (max-width: 992px) {
             body { padding-left: 0; }
-            .left-sidebar { display: none; }
+            .left-sidebar { display: none; } 
             .widgets-container { grid-template-columns: 1fr; }
             .fixed-bottom-left { left: 10px; bottom: 10px; }
         }
@@ -542,7 +595,7 @@
                 </div>
             </section>
 
-            <section class="widget mood-log-widget" id="moodLogWidgetContainer"> <!-- Changed ID for clarity -->
+            <section class="widget mood-log-widget" id="moodLogWidgetContainer"> 
                 <h2>Mood Log (Recent)</h2>
                 <ul id="moodLogListSummary">
                      <p class="empty-log-message">No moods logged yet. Click an emoji below to start!</p>
