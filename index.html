@@ -291,7 +291,7 @@
             color: var(--text-color);
             font-size: 0.95em;
         }
-         .add-reminder-form #newReminderInput::placeholder {
+           .add-reminder-form #newReminderInput::placeholder {
             color: var(--text-light);
             opacity: 0.8;
         }
@@ -311,12 +311,72 @@
 
         /* New TODO Cards */
         .todo-card ul.task-list { list-style: none; margin-bottom: 20px; padding-left: 5px; }
-        .todo-card ul.task-list li { padding: 8px 0; display: flex; align-items: center; }
-        .todo-card input[type="checkbox"] {
-            margin-right: 10px; accent-color: var(--accent-color);
-            width: 18px; height: 18px; flex-shrink: 0;
+        .todo-card ul.task-list li { 
+            padding: 8px 0; 
+            display: flex; 
+            flex-wrap: wrap; /* Allow content to wrap */
+            align-items: center; 
+            gap: 5px 10px; /* Gap between rows and columns */
+            border-bottom: 1px solid var(--widget-border-color); /* Add a separator */
         }
-        .todo-card .task-label { color: var(--text-light); flex-grow: 1; word-break: break-word; }
+        .todo-card ul.task-list li:last-child {
+            border-bottom: none; /* No border for the last item */
+        }
+        .todo-card input[type="checkbox"] {
+            margin-right: 5px; 
+            accent-color: var(--accent-color);
+            width: 18px; height: 18px; 
+            flex-shrink: 0; /* Prevent checkbox from shrinking */
+        }
+        .todo-card .task-content {
+            display: flex;
+            flex-direction: column; /* Stack label and date vertically */
+            flex-grow: 1; /* Allow content to take available space */
+            min-width: 0; /* Allow content to shrink if necessary */
+        }
+        .todo-card .task-label { 
+            color: var(--text-light); 
+            word-break: break-word; 
+            cursor: pointer;
+        }
+        /* Style for overdue tasks */
+        .todo-card .task-label.overdue {
+            color: var(--danger-color); /* Red color for overdue tasks */
+            font-weight: bold;
+        }
+        .todo-card .task-due-date-input {
+            margin-top: 2px;
+            padding: 2px 4px;
+            border: 1px solid var(--widget-border-color);
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: var(--text-light);
+            background-color: var(--input-bg);
+            cursor: pointer;
+            width: fit-content; /* Adjust width to content */
+        }
+        body.dark-mode .todo-card .task-due-date-input {
+            background-color: var(--header-bg); /* Dark mode input background */
+        }
+
+        .todo-card .delete-task-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.2em; 
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+            border-radius: 50%;
+            transition: color 0.2s, background-color 0.2s;
+            flex-shrink: 0;
+            margin-left: auto; /* Push to the right */
+        }
+        .todo-card .delete-task-btn:hover {
+            color: white;
+            background-color: var(--danger-color-hover);
+        }
 
         .progress-item { margin-bottom: 15px; margin-top: auto; }
         .progress-bar-container {
@@ -557,7 +617,7 @@
             to { transform: scale(1); opacity: 1; }
         }
         @keyframes popOut {
-             from { transform: scale(1); opacity: 1; }
+            from { transform: scale(1); opacity: 1; }
             to { transform: scale(0.8) translateY(20px); opacity: 0; }
         }
 
@@ -696,7 +756,7 @@
             <section class="widget mood-log-widget" id="moodLogWidgetContainer"> 
                 <h2>Mood Log (Recent)</h2>
                 <ul id="moodLogListSummary">
-                     <p class="empty-log-message">No moods logged yet. Click an emoji below to start!</p>
+                    <p class="empty-log-message">No moods logged yet. Click an emoji below to start!</p>
                 </ul>
             </section>
             <!-- New TODO cards will be appended here -->
@@ -782,6 +842,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             let cardIdCounter = 0; 
             let globalTaskCounter = 0;
+            // NEW: Array to store all todo cards data
+            let todoCardsData = []; 
 
             // --- THEME TOGGLE ---
             const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -825,73 +887,239 @@
                 if (sel) { sel.removeAllRanges(); sel.addRange(range); }
             }
             
+            // --- TODO CARD PERSISTENCE FUNCTIONS ---
+            function saveTodoCards() {
+                localStorage.setItem('todoCards', JSON.stringify(todoCardsData));
+            }
+
+            function loadTodoCards() {
+                const storedTodoCards = localStorage.getItem('todoCards');
+                if (storedTodoCards) {
+                    todoCardsData = JSON.parse(storedTodoCards);
+                    renderTodoCards(); // Render all loaded cards
+                }
+            }
+
+            // --- TODO CARD RENDERING ---
+            function renderTodoCards() {
+                // Clear existing dynamic todo cards before rendering
+                document.querySelectorAll('.todo-card').forEach(card => card.remove());
+
+                todoCardsData.forEach(cardData => {
+                    const cardElement = document.createElement('section');
+                    cardElement.classList.add('widget', 'todo-card');
+                    cardElement.id = cardData.id;
+                    cardElement.innerHTML = `
+                        <div class="widget-header">
+                            <h2 class="card-title"><span class="card-title-text" contenteditable="true">${cardData.title}</span></h2>
+                            <button class="close-btn close-card-btn" title="Close this list">×</button>
+                        </div>
+                        <ul class="task-list"></ul>
+                        <button class="add-task-btn">+ Add New Task</button>
+                        <div class="progress-item">
+                            <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            <p class="progress-label">0% Complete</p>
+                        </div>`;
+                    
+                    if (widgetsContainer) {
+                        widgetsContainer.appendChild(cardElement);
+
+                        // Add tasks to the newly created card
+                        const taskList = cardElement.querySelector('.task-list');
+                        cardData.tasks.forEach(task => {
+                            addTaskToTodoCard(cardElement, task.text, task.completed, task.dueDate, task.id);
+                        });
+
+                        updateProgressForCard(cardElement);
+
+                        // Event listener for card title editing
+                        const cardTitleText = cardElement.querySelector('.card-title-text');
+                        if (cardTitleText) {
+                            cardTitleText.addEventListener('keydown', e => { 
+                                if (e.key === 'Enter') { 
+                                    e.preventDefault(); 
+                                    cardTitleText.blur();
+                                }
+                            });
+                            cardTitleText.addEventListener('blur', () => {
+                                cardData.title = cardTitleText.textContent.trim();
+                                saveTodoCards();
+                            });
+                        }
+                    }
+                });
+            }
+
             // --- TODO CARD FUNCTIONALITY ---
             function createTodoCard() {
-                cardIdCounter++;
-                const cardId = `todoCard-${cardIdCounter}`;
-                const cardElement = document.createElement('section');
-                cardElement.classList.add('widget', 'todo-card');
-                cardElement.id = cardId;
-                cardElement.innerHTML = `
-                    <div class="widget-header">
-                        <h2 class="card-title"><span class="card-title-text" contenteditable="true">Untitled List ${cardIdCounter}</span></h2>
-                        <button class="close-btn close-card-btn" title="Close this list">×</button>
-                    </div>
-                    <ul class="task-list"></ul>
-                    <button class="add-task-btn">+ Add New Task</button>
-                    <div class="progress-item">
-                        <div class="progress-bar-container"><div class="progress-bar"></div></div>
-                        <p class="progress-label">0% Complete</p>
-                    </div>`;
-                if (widgetsContainer) {
-                    widgetsContainer.appendChild(cardElement);
-                    addTaskToTodoCard(cardElement, "New Task"); 
-                    updateProgressForCard(cardElement); 
-                    const cardTitleText = cardElement.querySelector('.card-title-text');
+                const newCardId = `todoCard-${Date.now()}`;
+                const newCardData = {
+                    id: newCardId,
+                    title: `Untitled List ${todoCardsData.length + 1}`,
+                    tasks: []
+                };
+                todoCardsData.push(newCardData);
+                saveTodoCards(); // Save immediately after creating a new card
+
+                // Re-render all cards to ensure the new one appears correctly
+                renderTodoCards(); 
+                
+                // Focus on the new card's title if it exists after rendering
+                const newlyCreatedCardElement = document.getElementById(newCardId);
+                if (newlyCreatedCardElement) {
+                    const cardTitleText = newlyCreatedCardElement.querySelector('.card-title-text');
                     if (cardTitleText) {
-                        cardTitleText.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cardTitleText.blur();}});
                         cardTitleText.focus();
                         selectElementContents(cardTitleText);
                     }
                 }
+
+                // Add an initial task to the new card
+                addTaskToTodoCard(newlyCreatedCardElement, "New Task", false, '');
             }
 
-            function addTaskToTodoCard(cardElement, taskText = "New Task") {
-                globalTaskCounter++;
-                const taskId = `dynamic-task-${globalTaskCounter}`;
+            function addTaskToTodoCard(cardElement, taskText = "New Task", completed = false, dueDate = '', taskId = `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`) {
                 const taskList = cardElement.querySelector('.task-list');
                 if (!taskList) return;
+
                 const taskItem = document.createElement('li');
+                taskItem.dataset.taskId = taskId;
                 taskItem.innerHTML = `
-                    <input type="checkbox" id="${taskId}" data-task-name="${taskText}">
-                    <span class="task-label" contenteditable="true">${taskText}</span>`;
+                    <input type="checkbox" class="task-checkbox" ${completed ? 'checked' : ''}>
+                    <div class="task-content">
+                        <span class="task-label" contenteditable="true">${taskText}</span>
+                        <input type="date" class="task-due-date-input" value="${dueDate}">
+                    </div>
+                    <button class="delete-task-btn" title="Delete Task">×</button>`;
                 taskList.appendChild(taskItem);
+
                 const newLabel = taskItem.querySelector('.task-label');
+                const dueDateInput = taskItem.querySelector('.task-due-date-input');
+                const deleteBtn = taskItem.querySelector('.delete-task-btn');
+                const checkbox = taskItem.querySelector('.task-checkbox');
+
+                // Find the parent card's data
+                const cardData = todoCardsData.find(card => card.id === cardElement.id);
+                if (!cardData) return;
+
+                // Add task to cardData if it's a brand new task
+                let taskData = cardData.tasks.find(task => task.id === taskId);
+                if (!taskData) {
+                    taskData = { id: taskId, text: taskText, completed: completed, dueDate: dueDate };
+                    cardData.tasks.push(taskData);
+                    saveTodoCards();
+                }
+
+                // Initial check for overdue status
+                checkOverdueStatus(taskItem, taskData.completed, taskData.dueDate);
+
                 if (newLabel) {
-                    newLabel.focus();
-                    selectElementContents(newLabel);
+                    // Make sure new task labels are editable and focused
+                    if (taskText === "New Task" && !completed && !dueDate) { // Only focus/select for genuinely new default tasks
+                        newLabel.focus();
+                        selectElementContents(newLabel);
+                    }
+
                     newLabel.addEventListener('blur', () => {
-                        const checkbox = taskItem.querySelector('input[type="checkbox"]');
-                        if(checkbox) checkbox.dataset.taskName = newLabel.textContent.trim();
-                        updateProgressForCard(cardElement); 
+                        taskData.text = newLabel.textContent.trim();
+                        saveTodoCards();
                     });
-                    newLabel.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); newLabel.blur();}});
+                    newLabel.addEventListener('keydown', e => { 
+                        if (e.key === 'Enter') { 
+                            e.preventDefault(); 
+                            newLabel.blur();
+                        }
+                    });
+                }
+
+                if (dueDateInput) {
+                    dueDateInput.addEventListener('change', () => {
+                        taskData.dueDate = dueDateInput.value;
+                        saveTodoCards();
+                        checkOverdueStatus(taskItem, taskData.completed, taskData.dueDate); // Re-check on date change
+                    });
+                }
+
+                if (checkbox) {
+                    checkbox.addEventListener('change', () => {
+                        taskData.completed = checkbox.checked;
+                        if (checkbox.checked) {
+                            triggerConfetti();
+                            newLabel.classList.add('completed');
+                        } else {
+                            newLabel.classList.remove('completed');
+                        }
+                        saveTodoCards();
+                        updateProgressForCard(cardElement);
+                        checkOverdueStatus(taskItem, taskData.completed, taskData.dueDate); // Re-check on completion change
+                    });
+                }
+                 if (completed) { // Apply completed class if task is loaded as completed
+                    newLabel.classList.add('completed');
+                }
+
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        const index = cardData.tasks.findIndex(t => t.id === taskId);
+                        if (index > -1) {
+                            cardData.tasks.splice(index, 1);
+                            taskItem.remove();
+                            saveTodoCards();
+                            updateProgressForCard(cardElement);
+                        }
+                    });
                 }
                 updateProgressForCard(cardElement);
             }
+
+            function checkOverdueStatus(taskItem, completed, dueDate) {
+                const taskLabel = taskItem.querySelector('.task-label');
+                if (!taskLabel || completed || !dueDate) {
+                    taskLabel.classList.remove('overdue');
+                    return;
+                }
+
+                const now = new Date();
+                const due = new Date(dueDate);
+                
+                // Compare only dates, not times, for overdue check
+                const nowNoTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const dueNoTime = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+
+                if (dueNoTime < nowNoTime) {
+                    taskLabel.classList.add('overdue');
+                } else {
+                    taskLabel.classList.remove('overdue');
+                }
+            }
+
 
             function updateProgressForCard(cardElement) {
                 const checkboxes = cardElement.querySelectorAll('.task-list input[type="checkbox"]');
                 const progressBar = cardElement.querySelector('.progress-bar');
                 const progressLabel = cardElement.querySelector('.progress-label');
                 if (!progressBar || !progressLabel) return; 
+
                 const totalTasks = checkboxes.length;
                 let checkedTasks = 0;
-                checkboxes.forEach(cb => { if (cb.checked) checkedTasks++; });
+                checkboxes.forEach(cb => { 
+                    if (cb.checked) {
+                        checkedTasks++; 
+                        // Ensure the task label has 'completed' class when checking
+                        const taskLabel = cb.nextElementSibling.querySelector('.task-label');
+                        if (taskLabel) taskLabel.classList.add('completed');
+                    } else {
+                         // Ensure the task label removes 'completed' class when unchecking
+                        const taskLabel = cb.nextElementSibling.querySelector('.task-label');
+                        if (taskLabel) taskLabel.classList.remove('completed');
+                    }
+                });
+
                 const percentage = totalTasks === 0 ? 0 : Math.round((checkedTasks / totalTasks) * 100);
                 progressBar.style.width = `${percentage}%`;
                 progressBar.textContent = `${percentage}%`;
                 progressLabel.textContent = `${checkedTasks} of ${totalTasks} tasks complete (${percentage}%)`;
+
                 if (percentage === 100 && totalTasks > 0) {
                     progressBar.classList.add('full');
                     progressBar.style.backgroundColor = 'var(--progress-bar-fill-complete)';
@@ -904,24 +1132,52 @@
             if (widgetsContainer) {
                 widgetsContainer.addEventListener('click', function(event) {
                     const target = event.target;
+                    // Handle "Add New Task" button click
                     if (target.classList.contains('add-task-btn')) {
                         const cardElement = target.closest('.todo-card');
-                        if (cardElement) addTaskToTodoCard(cardElement);
-                    }
-                    if (target.classList.contains('close-card-btn')) {
-                        const cardElement = target.closest('.todo-card');
-                        if (cardElement) cardElement.remove();
-                    }
-                });
-                widgetsContainer.addEventListener('change', function(event) {
-                    const target = event.target;
-                    if (target.matches('.todo-card .task-list input[type="checkbox"]')) {
-                        const cardElement = target.closest('.todo-card');
                         if (cardElement) {
-                            if (target.checked) triggerConfetti();
-                            updateProgressForCard(cardElement);
+                            addTaskToTodoCard(cardElement);
+                            // Update the card's data
+                            const cardData = todoCardsData.find(card => card.id === cardElement.id);
+                            if (cardData) {
+                                // addTaskToTodoCard now adds to cardData.tasks automatically
+                                saveTodoCards();
+                            }
                         }
                     }
+                    // Handle "Close this list" button click
+                    if (target.classList.contains('close-card-btn')) {
+                        const cardElement = target.closest('.todo-card');
+                        if (cardElement) {
+                            // Remove card data from array
+                            todoCardsData = todoCardsData.filter(card => card.id !== cardElement.id);
+                            cardElement.remove();
+                            saveTodoCards();
+                        }
+                    }
+                });
+
+                widgetsContainer.addEventListener('change', function(event) {
+                    const target = event.target;
+                    // Handle task checkbox change
+                    if (target.matches('.todo-card .task-list input[type="checkbox"]')) {
+                        const cardElement = target.closest('.todo-card');
+                        const taskItem = target.closest('li');
+                        const taskId = taskItem.dataset.taskId;
+                        
+                        if (cardElement && taskItem && taskId) {
+                            const cardData = todoCardsData.find(card => card.id === cardElement.id);
+                            const taskData = cardData ? cardData.tasks.find(task => task.id === taskId) : null;
+
+                            if (taskData) {
+                                taskData.completed = target.checked;
+                                saveTodoCards();
+                                updateProgressForCard(cardElement);
+                                checkOverdueStatus(taskItem, taskData.completed, taskData.dueDate); // Re-check on completion change
+                            }
+                        }
+                    }
+                    // Handle task due date change (already handled within addTaskToTodoCard listener)
                 });
             }
             
@@ -987,7 +1243,6 @@
                     saveReminders(); // Save the updated 'notified' status
                 }
             }
-
             // --- End of new Notification Logic ---
 
             function loadReminders() {
@@ -1082,7 +1337,9 @@
             function openCalendarModal() {
                 reminderTextToSet = newReminderInput.value.trim();
                 if (reminderTextToSet === '') {
-                    alert("Please type a reminder message first!");
+                    // Replaced alert with a custom message handling if possible, or keep as-is if alerts are allowed
+                    // For now, retaining alert as per original code behavior for consistency, though custom UI is preferred.
+                    alert("Please type a reminder message first!"); 
                     newReminderInput.focus();
                     return;
                 }
@@ -1333,7 +1590,7 @@
                         year: 'numeric', month: 'long', day: 'numeric', 
                         hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
-                     li.innerHTML = `
+                    li.innerHTML = `
                         <span class="log-emoji">${entry.emoji}</span>
                         <div class="log-details">
                             <p class="log-note">${entry.note || '<em>No note added for this entry.</em>'}</p>
@@ -1347,19 +1604,19 @@
                 viewMoodLogTabBtn.addEventListener('click', () => {
                     renderFullMoodLog(); 
                     if(fullMoodLogViewModal) {
-                         fullMoodLogViewModal.classList.remove('fade-out');
-                         fullMoodLogViewModal.style.display = 'flex';
+                           fullMoodLogViewModal.classList.remove('fade-out');
+                           fullMoodLogViewModal.style.display = 'flex';
                     }
                 });
             }
 
             function closeFullLogViewModal() {
-                 if(fullMoodLogViewModal) {
+                   if(fullMoodLogViewModal) {
                     fullMoodLogViewModal.classList.add('fade-out');
                     setTimeout(() => {
                         fullMoodLogViewModal.style.display = 'none';
                     }, 400);
-                 }
+                   }
             }
 
             if(closeFullLogViewBtn) closeFullLogViewBtn.addEventListener('click', closeFullLogViewModal);
@@ -1426,6 +1683,7 @@
             // --- INITIALIZE TIMERS AND CHECKS ---
             setInterval(checkRemindersForNotification, 60000); // Check every minute
             checkRemindersForNotification(); // Also check once on page load
+            loadTodoCards(); // Load existing todo cards on page load
         });
     </script>
 </body>
