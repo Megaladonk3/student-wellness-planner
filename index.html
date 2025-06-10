@@ -137,7 +137,6 @@
             width: 100%;
             box-shadow: var(--new-todo-btn-shadow);
             transition: background-color 0.2s, color 0.2s, filter 0.2s, transform 0.2s, box-shadow 0.2s;
-            /* Animation removed */
         }
 
         #newPageBtn:hover,
@@ -147,7 +146,6 @@
             filter: brightness(1.12); 
             transform: translateY(-2px) scale(1.02);
             box-shadow: var(--new-todo-btn-hover-shadow);
-            /* Animation play state removed */
             outline: none; 
         }
         
@@ -233,12 +231,20 @@
             height: 18px;
             flex-shrink: 0;
         }
-        .reminders-widget .reminder-text {
+        .reminders-widget .reminder-details {
             flex-grow: 1;
+        }
+        .reminders-widget .reminder-text {
             color: var(--text-light);
             cursor: pointer; 
             padding: 3px 5px;
             border-radius: 3px;
+        }
+        .reminders-widget .reminder-date {
+            font-size: 0.8em;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 4px;
         }
         .reminders-widget .reminder-text[contenteditable="true"] {
             cursor: text;
@@ -407,14 +413,26 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--modal-overlay-bg); display: none; 
             align-items: center; justify-content: center; z-index: 1500; 
+            animation: fadeIn 0.4s ease-out forwards;
         }
+        .modal-overlay.fade-out {
+            animation: fadeOut 0.4s ease-in forwards;
+        }
+        
         /* Modal Content (Common Base) */
         .modal-content {
             background-color: var(--widget-bg);
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             width: 90%; 
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+            animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
+        .modal-overlay.fade-out .modal-content {
+            animation: popOut 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
 
         /* Mood Logging Modal (for new entries) */
         #moodLoggingModal .modal-content {
@@ -431,6 +449,12 @@
             color: var(--text-color);
         }
         body.dark-mode #moodNoteInput { background-color: var(--input-bg); } /* Ensure consistency */
+        .modal-actions {
+            padding: 10px 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
         .modal-actions button {
             padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer;
             font-weight: bold; margin: 0 5px; transition: filter 0.2s;
@@ -508,6 +532,80 @@
             padding: 30px;
             font-size: 1.1em;
             color: var(--text-light);
+        }
+
+        /* ----- NEW: Reminder Calendar Modal Specific Styles ----- */
+        #reminderCalendarModal {
+            --calendar-bg: var(--widget-bg);
+            --calendar-header-bg: var(--header-bg);
+            --calendar-border-color: var(--widget-border-color);
+            --calendar-text-color: var(--text-color);
+            --calendar-day-hover-bg: var(--accent-color-translucent);
+            --calendar-day-selected-bg: var(--accent-color);
+            --calendar-day-selected-text: white;
+            --calendar-today-border: 2px solid var(--accent-color);
+            --calendar-reminder-dot: var(--danger-color);
+            --time-input-bg: var(--input-bg);
+            --modal-backdrop-blur: 5px;
+            --modal-animation-duration: 0.4s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes popIn {
+            from { transform: scale(0.8) translateY(20px); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes popOut {
+             from { transform: scale(1); opacity: 1; }
+            to { transform: scale(0.8) translateY(20px); opacity: 0; }
+        }
+
+        #reminderCalendarModal .modal-content {
+            max-width: 400px;
+            border: 1px solid var(--calendar-border-color);
+        }
+        #reminderCalendarModal .modal-header {
+            padding: 15px 20px;
+            background-color: var(--calendar-header-bg);
+            border-bottom: 1px solid var(--calendar-border-color);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #calendarMonthYear { font-weight: bold; font-size: 1.1em; }
+        #prevMonthBtn, #nextMonthBtn {
+            background: none; border: none; font-size: 1.8em; color: var(--text-color);
+            cursor: pointer; padding: 0 10px; transition: transform 0.2s;
+        }
+        #prevMonthBtn:hover, #nextMonthBtn:hover { transform: scale(1.2); }
+        #calendarGrid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 20px;
+        }
+        .calendar-day-name, .calendar-day {
+            text-align: center; padding: 8px; font-weight: bold; color: var(--text-light);
+        }
+        .calendar-day {
+            cursor: pointer; border-radius: 50%; position: relative;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s;
+            color: var(--calendar-text-color);
+        }
+        .calendar-day:hover { background-color: var(--calendar-day-hover-bg); transform: scale(1.1); }
+        .calendar-day.not-current-month { color: var(--text-light); opacity: 0.5; pointer-events: none; }
+        .calendar-day.today { box-shadow: 0 0 0 var(--calendar-today-border); }
+        .calendar-day.selected {
+            background-color: var(--calendar-day-selected-bg); color: var(--calendar-day-selected-text) !important; font-weight: bold;
+        }
+        .calendar-day .reminder-dot {
+            position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+            width: 6px; height: 6px; background-color: var(--accent-color); border-radius: 50%;
+        }
+        #reminderTimeSection { padding: 0 20px 20px; text-align: center; }
+        #reminderTimeSection label { font-weight: bold; margin-right: 10px; }
+        #reminderTimeInput {
+            padding: 8px; border-radius: 6px; border: 1px solid var(--calendar-border-color);
+            background-color: var(--time-input-bg); color: var(--calendar-text-color); font-family: inherit;
         }
 
         /* Confetti */
@@ -590,8 +688,8 @@
                     <!-- Reminders will be populated here by JS -->
                 </ul>
                 <div class="add-reminder-form">
-                    <input type="text" id="newReminderInput" placeholder="Add a new reminder...">
-                    <button id="addReminderBtn" title="Add Reminder">+</button>
+                    <input type="text" id="newReminderInput" placeholder="Type reminder, then click '+' to set date...">
+                    <button id="addReminderBtn" title="Set Date & Time for Reminder">+</button>
                 </div>
             </section>
 
@@ -634,8 +732,8 @@
             <div id="modalSelectedMoodEmoji"></div>
             <textarea id="moodNoteInput" placeholder="Add a note (optional)..."></textarea>
             <div class="modal-actions">
-                <button id="saveMoodLogBtn" class="save-mood-btn">Log Mood</button>
                 <button id="cancelMoodLogBtn" class="cancel-mood-btn">Cancel</button>
+                <button id="saveMoodLogBtn" class="save-mood-btn">Log Mood</button>
             </div>
         </div>
     </div>
@@ -654,6 +752,29 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== Reminder Calendar Modal ===== -->
+    <div id="reminderCalendarModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="prevMonthBtn" title="Previous Month">&lt;</button>
+                <h3 id="calendarMonthYear">Month Year</h3>
+                <button id="nextMonthBtn" title="Next Month">&gt;</button>
+            </div>
+            <div id="calendarGrid">
+                <!-- Day names and dates will be generated by JS -->
+            </div>
+            <div id="reminderTimeSection">
+                <label for="reminderTimeInput">Set Time:</label>
+                <input type="time" id="reminderTimeInput">
+            </div>
+            <div class="modal-actions">
+                <button id="cancelReminderBtn" class="cancel-mood-btn">Cancel</button>
+                <button id="setReminderBtn" class="save-mood-btn">Set Reminder</button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="confetti-container"></div>
 
@@ -807,23 +928,103 @@
             const newPageButton = document.getElementById('newPageBtn');
             if (newPageButton) newPageButton.addEventListener('click', createTodoCard);
 
-            // --- ENHANCED REMINDERS WIDGET ---
+            // --- ENHANCED REMINDERS WIDGET V3 (With Notifications) ---
             const remindersListEl = document.getElementById('remindersList');
             const newReminderInput = document.getElementById('newReminderInput');
             const addReminderBtn = document.getElementById('addReminderBtn');
-
+            
+            const reminderCalendarModal = document.getElementById('reminderCalendarModal');
+            const calendarMonthYearEl = document.getElementById('calendarMonthYear');
+            const prevMonthBtn = document.getElementById('prevMonthBtn');
+            const nextMonthBtn = document.getElementById('nextMonthBtn');
+            const calendarGridEl = document.getElementById('calendarGrid');
+            const reminderTimeInput = document.getElementById('reminderTimeInput');
+            const setReminderBtn = document.getElementById('setReminderBtn');
+            const cancelReminderBtn = document.getElementById('cancelReminderBtn');
+            
             let reminders = []; 
+            let calendarDate = new Date();
+            let selectedDate = null;
+            let reminderTextToSet = '';
+
+            // --- NEW: Notification Logic ---
+            function requestNotificationPermission() {
+                if (!("Notification" in window)) {
+                    console.log("This browser does not support desktop notification");
+                } else if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            }
+            
+            function showNotification(reminderText) {
+                if (Notification.permission === "granted") {
+                    new Notification("Upcoming Reminder!", {
+                        body: reminderText,
+                        // icon: "path/to/your/icon.png" // Optional: Add an icon
+                    });
+                } else {
+                    // Fallback for when permission is denied or not granted
+                    alert(`Reminder: ${reminderText}`);
+                }
+            }
+            
+            function checkRemindersForNotification() {
+                const now = new Date().getTime();
+                const oneHour = 60 * 60 * 1000;
+                let needsSave = false;
+                
+                reminders.forEach(reminder => {
+                    const dueDate = new Date(reminder.dueDate).getTime();
+                    // Check if reminder is in the future, within the hour, not completed, and not already notified
+                    if (dueDate > now && (dueDate - now) <= oneHour && !reminder.completed && !reminder.notified) {
+                        showNotification(reminder.text);
+                        reminder.notified = true; // Mark as notified
+                        needsSave = true;
+                    }
+                });
+                
+                if (needsSave) {
+                    saveReminders(); // Save the updated 'notified' status
+                }
+            }
+
+            // --- End of new Notification Logic ---
 
             function loadReminders() {
                 const storedReminders = localStorage.getItem('reminders');
                 if (storedReminders) {
                     reminders = JSON.parse(storedReminders);
+                    reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
                 }
                 renderReminders();
             }
 
             function saveReminders() {
+                reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
                 localStorage.setItem('reminders', JSON.stringify(reminders));
+            }
+
+            function formatDueDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                let datePart;
+                const dateToCompare = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+                if (dateToCompare.getTime() === today.getTime()) {
+                    datePart = 'Today';
+                } else if (dateToCompare.getTime() === tomorrow.getTime()) {
+                    datePart = 'Tomorrow';
+                } else {
+                    datePart = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                }
+
+                const timePart = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
+                return `${datePart} at ${timePart}`;
             }
 
             function renderReminders() {
@@ -833,10 +1034,7 @@
                 if (reminders.length === 0) {
                     const emptyLi = document.createElement('li');
                     emptyLi.textContent = 'No reminders yet. Add one below!';
-                    emptyLi.style.textAlign = 'center';
-                    emptyLi.style.color = 'var(--text-light)';
-                    emptyLi.style.borderBottom = 'none'; 
-                    emptyLi.style.padding = '10px 0'; 
+                    emptyLi.style.cssText = 'text-align: center; color: var(--text-light); border-bottom: none; padding: 10px 0;';
                     remindersListEl.appendChild(emptyLi);
                     return;
                 }
@@ -851,13 +1049,22 @@
                     checkbox.checked = reminder.completed;
                     checkbox.addEventListener('change', () => toggleReminderComplete(reminder.id));
 
-                    const textSpan = document.createElement('span');
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'reminder-details';
+
+                    const textSpan = document.createElement('div');
                     textSpan.classList.add('reminder-text');
                     textSpan.textContent = reminder.text;
                     if (reminder.completed) {
                         textSpan.classList.add('completed');
                     }
-                    textSpan.addEventListener('click', () => makeReminderEditable(textSpan, reminder.id));
+                    
+                    const dateSpan = document.createElement('div');
+                    dateSpan.className = 'reminder-date';
+                    dateSpan.textContent = formatDueDate(reminder.dueDate);
+
+                    detailsDiv.appendChild(textSpan);
+                    detailsDiv.appendChild(dateSpan);
                     
                     const deleteBtn = document.createElement('button');
                     deleteBtn.classList.add('delete-reminder-btn');
@@ -866,70 +1073,129 @@
                     deleteBtn.addEventListener('click', () => deleteReminder(reminder.id));
 
                     li.appendChild(checkbox);
-                    li.appendChild(textSpan);
+                    li.appendChild(detailsDiv);
                     li.appendChild(deleteBtn);
                     remindersListEl.appendChild(li);
                 });
             }
 
-            function makeReminderEditable(spanElement, reminderId) {
-                if (spanElement.isContentEditable || spanElement.classList.contains('completed')) return;
-
-                const originalText = spanElement.textContent;
-                spanElement.contentEditable = true;
-                spanElement.focus();
-                selectElementContents(spanElement);
-
-                const onBlurOrEnter = () => {
-                    spanElement.contentEditable = false;
-                    const newText = spanElement.textContent.trim();
-                    if (newText && newText !== originalText) {
-                        const reminder = reminders.find(r => r.id === reminderId);
-                        if (reminder) {
-                            reminder.text = newText;
-                            saveReminders();
-                        }
-                    } else if (!newText && originalText) { 
-                        spanElement.textContent = originalText; 
-                    } else if (!newText && !originalText) {
-                        spanElement.textContent = "Empty Reminder"; 
-                    }
-                    spanElement.removeEventListener('blur', onBlurOrEnter);
-                    spanElement.removeEventListener('keydown', onKeydown);
-                };
-
-                const onKeydown = (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault(); 
-                        onBlurOrEnter();
-                    } else if (e.key === 'Escape') {
-                        spanElement.textContent = originalText; 
-                        onBlurOrEnter(); 
-                    }
-                };
-                spanElement.addEventListener('blur', onBlurOrEnter);
-                spanElement.addEventListener('keydown', onKeydown);
-            }
-
-            function addReminderHandler() { 
-                if (!newReminderInput) return;
-                const text = newReminderInput.value.trim();
-                if (text === '') {
+            function openCalendarModal() {
+                reminderTextToSet = newReminderInput.value.trim();
+                if (reminderTextToSet === '') {
+                    alert("Please type a reminder message first!");
                     newReminderInput.focus();
                     return;
                 }
+                
+                selectedDate = new Date();
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                reminderTimeInput.value = `${hours}:${minutes}`;
+
+                generateCalendar();
+                reminderCalendarModal.classList.remove('fade-out');
+                reminderCalendarModal.style.display = 'flex';
+            }
+
+            function closeCalendarModal() {
+                reminderCalendarModal.classList.add('fade-out');
+                setTimeout(() => {
+                    reminderCalendarModal.style.display = 'none';
+                }, 400); 
+            }
+
+            function generateCalendar() {
+                calendarGridEl.innerHTML = '';
+                const month = calendarDate.getMonth();
+                const year = calendarDate.getFullYear();
+                
+                calendarMonthYearEl.textContent = `${calendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+                
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                dayNames.forEach(day => {
+                    const dayNameEl = document.createElement('div');
+                    dayNameEl.classList.add('calendar-day-name');
+                    dayNameEl.textContent = day;
+                    calendarGridEl.appendChild(dayNameEl);
+                });
+
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                const reminderDates = reminders.map(r => {
+                    const d = new Date(r.dueDate);
+                    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+                });
+                
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    calendarGridEl.appendChild(document.createElement('div'));
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.classList.add('calendar-day');
+                    dayEl.textContent = i;
+                    dayEl.dataset.date = new Date(year, month, i);
+
+                    const today = new Date();
+                    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayEl.classList.add('today');
+                    }
+                    if (selectedDate && i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+                        dayEl.classList.add('selected');
+                    }
+                    if (reminderDates.includes(`${year}-${month}-${i}`)) {
+                        const dot = document.createElement('div');
+                        dot.className = 'reminder-dot';
+                        dayEl.appendChild(dot);
+                    }
+
+                    dayEl.addEventListener('click', () => {
+                        selectedDate = new Date(year, month, i);
+                        document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
+                        dayEl.classList.add('selected');
+                    });
+                    calendarGridEl.appendChild(dayEl);
+                }
+            }
+
+            prevMonthBtn.addEventListener('click', () => {
+                calendarDate.setMonth(calendarDate.getMonth() - 1);
+                generateCalendar();
+            });
+            nextMonthBtn.addEventListener('click', () => {
+                calendarDate.setMonth(calendarDate.getMonth() + 1);
+                generateCalendar();
+            });
+
+            function confirmAndSetReminder() {
+                requestNotificationPermission(); // Ask for permission when user sets a reminder
+                
+                if (!selectedDate || !reminderTextToSet) return;
+                
+                const timeParts = reminderTimeInput.value.split(':');
+                selectedDate.setHours(timeParts[0] || 0);
+                selectedDate.setMinutes(timeParts[1] || 0);
+                selectedDate.setSeconds(0);
+
                 const newReminder = {
-                    id: `rem-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
-                    text: text,
-                    completed: false
+                    id: `rem-${Date.now()}`, 
+                    text: reminderTextToSet,
+                    completed: false,
+                    dueDate: selectedDate.toISOString(),
+                    notified: false // NEW: Add notified flag
                 };
-                reminders.unshift(newReminder); 
+                reminders.push(newReminder); 
                 saveReminders();
                 renderReminders();
                 newReminderInput.value = ''; 
-                newReminderInput.focus();
+                closeCalendarModal();
             }
 
+            setReminderBtn.addEventListener('click', confirmAndSetReminder);
+            cancelReminderBtn.addEventListener('click', closeCalendarModal);
+            
             function deleteReminder(reminderId) {
                 reminders = reminders.filter(r => r.id !== reminderId);
                 saveReminders();
@@ -945,14 +1211,12 @@
                 }
             }
 
-            if (addReminderBtn && newReminderInput) {
-                addReminderBtn.addEventListener('click', addReminderHandler);
-                newReminderInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        addReminderHandler();
-                    }
-                });
-            }
+            addReminderBtn.addEventListener('click', openCalendarModal);
+            newReminderInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    openCalendarModal();
+                }
+            });
             loadReminders();
 
 
@@ -978,12 +1242,20 @@
                 currentSelectedMood.emoji = moodEmoji;
                 if(modalSelectedMoodEmoji) modalSelectedMoodEmoji.textContent = moodEmoji;
                 if(moodNoteInput) moodNoteInput.value = '';
-                if(moodLoggingModal) moodLoggingModal.style.display = 'flex';
+                if(moodLoggingModal) {
+                    moodLoggingModal.classList.remove('fade-out');
+                    moodLoggingModal.style.display = 'flex';
+                }
                 if(moodNoteInput) moodNoteInput.focus();
             }
 
             function closeMoodModal() {
-                if(moodLoggingModal) moodLoggingModal.style.display = 'none';
+                if(moodLoggingModal) {
+                    moodLoggingModal.classList.add('fade-out');
+                    setTimeout(() => {
+                        moodLoggingModal.style.display = 'none';
+                    }, 400);
+                }
             }
 
             if (moodEmojiTriggers) {
@@ -1012,11 +1284,6 @@
             }
             
             if(cancelMoodLogBtn) cancelMoodLogBtn.addEventListener('click', closeMoodModal);
-            if(moodLoggingModal) {
-                moodLoggingModal.addEventListener('click', (event) => {
-                    if (event.target === moodLoggingModal) closeMoodModal();
-                });
-            }
 
             function getMoodLog() {
                 return JSON.parse(localStorage.getItem('moodLog') || '[]');
@@ -1079,22 +1346,36 @@
             if (viewMoodLogTabBtn) {
                 viewMoodLogTabBtn.addEventListener('click', () => {
                     renderFullMoodLog(); 
-                    if(fullMoodLogViewModal) fullMoodLogViewModal.style.display = 'flex';
-                });
-            }
-
-            if (closeFullLogViewBtn) {
-                closeFullLogViewBtn.addEventListener('click', () => {
-                    if(fullMoodLogViewModal) fullMoodLogViewModal.style.display = 'none';
-                });
-            }
-            if (fullMoodLogViewModal) {
-                 fullMoodLogViewModal.addEventListener('click', (event) => {
-                    if (event.target === fullMoodLogViewModal) {
-                        fullMoodLogViewModal.style.display = 'none';
+                    if(fullMoodLogViewModal) {
+                         fullMoodLogViewModal.classList.remove('fade-out');
+                         fullMoodLogViewModal.style.display = 'flex';
                     }
                 });
             }
+
+            function closeFullLogViewModal() {
+                 if(fullMoodLogViewModal) {
+                    fullMoodLogViewModal.classList.add('fade-out');
+                    setTimeout(() => {
+                        fullMoodLogViewModal.style.display = 'none';
+                    }, 400);
+                 }
+            }
+
+            if(closeFullLogViewBtn) closeFullLogViewBtn.addEventListener('click', closeFullLogViewModal);
+            
+            // Close modal when clicking on the overlay
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        // Check which modal it is and call its specific close function
+                        if(modal.id === 'fullMoodLogViewModal') closeFullLogViewModal();
+                        if(modal.id === 'moodLoggingModal') closeMoodModal();
+                        if(modal.id === 'reminderCalendarModal') closeCalendarModal();
+                    }
+                });
+            });
+
             renderMoodLogSummary();
 
 
@@ -1141,6 +1422,10 @@
                     alert(searchTerm ? `Searching for: ${searchTerm}... (Not implemented)` : 'Please enter a search term.');
                 });
             }
+
+            // --- INITIALIZE TIMERS AND CHECKS ---
+            setInterval(checkRemindersForNotification, 60000); // Check every minute
+            checkRemindersForNotification(); // Also check once on page load
         });
     </script>
 </body>
