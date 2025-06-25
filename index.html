@@ -1106,6 +1106,23 @@
             font-weight: 900;
         }
 
+        /* Pomodoro specific styles */
+        .pomodoro-widget #statusBar {
+          display: flex;
+          justify-content: center;
+          margin: 10px 0;
+          gap: 5px;
+        }
+        .pomodoro-widget .statusDot {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background-color: #ccc;
+        }
+        .pomodoro-widget .statusDot.active {
+          background-color: #6C63FF;
+        }
+
         /* Animations and Toasts */
         @keyframes fadeIn {
             from { opacity: 0; backdrop-filter: blur(0); }
@@ -1229,6 +1246,9 @@
             <span id="themeIcon" class="tab-icon">☀️</span>
             <span id="themeToggleText">Light/Dark Mode</span>
         </button>
+        <button class="sidebar-tab-button" id="openPomodoroBtn">
+            <span class="tab-icon">🍅</span> Pomodoro Timer
+        </button>
     </aside>
 
     <main class="main-content">
@@ -1255,6 +1275,27 @@
                     <button id="calNextMonthBtn" class="calendar-nav-btn" title="Next Month">></button>
                 </div>
                 <div id="widgetCalendarGrid" class="calendar-grid-widget"></div>
+            </section>
+            <section class="widget pomodoro-widget" id="pomodoroWidget" style="display: none;">
+                <div class="widget-header drag-handle">
+                    <h2>Pomodoro Timer</h2>
+                    <button class="close-btn" onclick="document.getElementById('pomodoroWidget').style.display='none'">×</button>
+                </div>
+              <div id="statusBar"></div>
+              <h3 id="pomodoroLabel">Focus Time</h3>
+              <div id="pomodoroDisplay">25:00</div>
+              <button id="startPomodoroBtn">▶ Start</button>
+              <button id="pausePomodoroBtn" style="display:none;">⏸ Pause</button>
+              <button id="resetPomodoroBtn">🔄 Reset</button>
+              <div style="margin-top: 20px;">
+                <label for="customMinutes">Focus (min): </label>
+                <input type="number" id="customMinutes" value="25" min="1" max="90">
+                <label for="breakMinutes">Break (min): </label>
+                <input type="number" id="breakMinutes" value="5" min="1" max="30">
+                <label for="totalSessions">Sessions: </label>
+                <input type="number" id="totalSessions" value="4" min="1" max="10">
+              </div>
+              <p id="sessionCounter">Session: 1</p>
             </section>
         </div>
         
@@ -2351,6 +2392,136 @@
             initializeDragAndDrop();
             loadAvatar();
         });
+
+        //Pomodoro timer widget logic
+        let pomodoroInterval;
+        let isRunning = false;
+        let defaultFocusMinutes = 25;
+        let defaultBreakMinutes = 5;
+        let totalSessionLimit = 4;
+        let isBreak = false;
+        let timeLeft = defaultFocusMinutes * 60;
+        let sessionCount = 1;
+    
+        const widget = document.getElementById("pomodoroWidget");
+        const openBtn = document.getElementById("openPomodoroBtn");
+        const startBtn = document.getElementById("startPomodoroBtn");
+        const pauseBtn = document.getElementById("pausePomodoroBtn");
+        const resetBtn = document.getElementById("resetPomodoroBtn");
+        const display = document.getElementById("pomodoroDisplay");
+        const label = document.getElementById("pomodoroLabel");
+        const customMinutesInput = document.getElementById("customMinutes");
+        const breakMinutesInput = document.getElementById("breakMinutes");
+        const sessionCounter = document.getElementById("sessionCounter");
+        const totalSessionsInput = document.getElementById("totalSessions");
+        const alertSound = document.getElementById("alertSound");
+        const statusBar = document.getElementById("statusBar");
+    
+        function renderStatusBar() {
+          statusBar.innerHTML = "";
+          for (let i = 1; i <= totalSessionLimit; i++) {
+            const dot = document.createElement("div");
+            dot.classList.add("statusDot");
+            if (i < sessionCount) dot.classList.add("active");
+            statusBar.appendChild(dot);
+          }
+        }
+    
+        openBtn.addEventListener("click", () => {
+          widget.style.display = "block";
+        });
+    
+        customMinutesInput.addEventListener("change", () => {
+          defaultFocusMinutes = parseInt(customMinutesInput.value) || 25;
+          if (!isBreak) resetTimer();
+        });
+    
+        breakMinutesInput.addEventListener("change", () => {
+          defaultBreakMinutes = parseInt(breakMinutesInput.value) || 5;
+          if (isBreak) resetTimer();
+        });
+    
+        totalSessionsInput.addEventListener("change", () => {
+          totalSessionLimit = parseInt(totalSessionsInput.value) || 4;
+          renderStatusBar();
+        });
+    
+        function updateDisplay() {
+          const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+          const seconds = String(timeLeft % 60).padStart(2, "0");
+          display.textContent = `${minutes}:${seconds}`;
+        }
+    
+        function updateSession() {
+          sessionCounter.textContent = `Session: ${sessionCount}`;
+          renderStatusBar();
+        }
+    
+        function playSound() {
+          alertSound.currentTime = 0;
+          alertSound.play();
+        }
+    
+        function startTimer() {
+          if (!isRunning && sessionCount <= totalSessionLimit) {
+            isRunning = true;
+            pomodoroInterval = setInterval(() => {
+              if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+              } else {
+                clearInterval(pomodoroInterval);
+                isRunning = false;
+                playSound();
+                if (!isBreak && sessionCount >= totalSessionLimit) {
+                  alert("All sessions complete!");
+                  return;
+                }
+                isBreak = !isBreak;
+                if (isBreak) {
+                  alert("Break time! Relax.");
+                  label.textContent = "Break Time";
+                  timeLeft = defaultBreakMinutes * 60;
+                } else {
+                  alert("Back to work!");
+                  sessionCount++;
+                  updateSession();
+                  label.textContent = "Focus Time";
+                  timeLeft = defaultFocusMinutes * 60;
+                }
+                updateDisplay();
+                startTimer();
+              }
+            }, 1000);
+            startBtn.style.display = "none";
+            pauseBtn.style.display = "inline";
+          }
+        }
+    
+        function pauseTimer() {
+          clearInterval(pomodoroInterval);
+          isRunning = false;
+          startBtn.style.display = "inline";
+          pauseBtn.style.display = "none";
+        }
+    
+        function resetTimer() {
+          clearInterval(pomodoroInterval);
+          timeLeft = (isBreak ? defaultBreakMinutes : defaultFocusMinutes) * 60;
+          label.textContent = isBreak ? "Break Time" : "Focus Time";
+          isRunning = false;
+          updateDisplay();
+          startBtn.style.display = "inline";
+          pauseBtn.style.display = "none";
+          renderStatusBar();
+        }
+    
+        startBtn.addEventListener("click", startTimer);
+        pauseBtn.addEventListener("click", pauseTimer);
+        resetBtn.addEventListener("click", resetTimer);
+    
+        updateDisplay();
+        updateSession();
     </script>
 </body>
 </html>
