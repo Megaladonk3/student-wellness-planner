@@ -275,6 +275,7 @@
             border: 1px solid var(--widget-border-color);
             box-shadow: var(--sidebar-shadow);
             border-radius: 16px;
+            overflow-y: auto;
         }
 
         #newPageBtn {
@@ -290,6 +291,7 @@
             width: 100%;
             box-shadow: var(--new-todo-btn-shadow);
             transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
         }
         #newPageBtn:hover, #newPageBtn:focus {
             transform: translateY(-3px) scale(1.02);
@@ -311,6 +313,7 @@
             display: flex;
             align-items: center;
             font-size: 0.9em;
+            flex-shrink: 0;
         }
         .sidebar-tab-button:hover {
             background: var(--widget-bg);
@@ -354,6 +357,7 @@
             background: var(--button-bg);
             border-radius: 12px;
             padding: 12px;
+            margin-top: 15px;
         }
         .sidebar-weather .weather-header {
             display: flex;
@@ -923,27 +927,46 @@
             flex-direction: column;
             padding: 0;
         }
-        #fullMoodLogViewModal .modal-header {
+        .modal-header { /* Shared by multiple modals */
             padding: 15px 20px;
-            background-color: rgba(0,0,0,0.05);
             border-bottom: 1px solid var(--widget-border-color);
-            border-radius: 16px 16px 0 0;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
         }
-        #fullMoodLogViewModal .modal-header h3 {
-            margin: 0; font-size: 1.6em;
+        .modal-header h3 {
+             margin: 0; font-size: 1.6em;
             font-weight: 600; color: var(--text-color);
         }
-        #fullMoodLogViewModal .close-full-log-btn {
-            background: none; border: none;
-            font-size: 2.2em; color: var(--nav-link-color);
-            cursor: pointer; line-height: 1; padding: 0 5px;
-            opacity: .7; transition: opacity .2s,transform .2s;
+        .modal-header .close-modal-btn { /* IMPROVED CLOSE BUTTON */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color .2s, transform .2s;
         }
-        #fullMoodLogViewModal .close-full-log-btn:hover {
-            opacity: 1;
+        .modal-header .close-modal-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-color);
+            stroke-width: 3;
+            transition: stroke .2s;
+        }
+        .modal-header .close-modal-btn:hover {
+            background-color: var(--button-bg);
             transform: scale(1.1) rotate(90deg);
         }
+        .modal-header .close-modal-btn:hover svg {
+            stroke: var(--danger-color);
+        }
+
         #fullMoodLogViewModal .modal-body {
             padding: 25px;
             overflow-y: auto;
@@ -974,13 +997,6 @@
         }
 
         #reminderCalendarModal .modal-content { max-width: 400px; padding: 0; }
-        #reminderCalendarModal .modal-header {
-            padding: 15px 20px;
-            background-color: rgba(0,0,0,0.05);
-            border-bottom: 1px solid var(--widget-border-color);
-            border-radius: 16px 16px 0 0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
         #reminderCalendarModal #calendarMonthYear { font-weight: 700; font-size: 1.2em; }
         #reminderCalendarModal #prevMonthBtn, #reminderCalendarModal #nextMonthBtn {
             background: none; border: none;
@@ -1033,14 +1049,6 @@
             animation: popIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards, gradient-flow 15s ease infinite;
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        #horoscopeModal .close-horoscope-btn {
-            position: absolute; top: 10px; right: 15px;
-            font-size: 2.5em; color: rgba(255, 255, 255, 0.8);
-            background: none; border: none;
-            cursor: pointer; line-height: 1;
-            transition: transform 0.2s, color 0.2s; z-index: 1;
-        }
-        #horoscopeModal .close-horoscope-btn:hover { color: #fff; transform: scale(1.2); }
         #horoscopeEmoji {
             font-size: 5em; margin-bottom: 20px;
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
@@ -1108,152 +1116,144 @@
 
         /* Pomodoro Timer specific styles */
         .pomodoro-widget {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            padding: 15px;
-            gap: 15px;
-            min-height: 70px;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
-
-        .pomodoro-widget h2.drag-handle {
-            font-size: 2.2em;
-            margin: 0;
-            padding-top: 5px;
-            line-height: 1;
-            cursor: grab;
+        .pomodoro-timer-visual {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px auto;
+        }
+        .pomodoro-timer-visual svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .pomodoro-timer-visual .timer-circle-bg {
+            fill: none;
+            stroke: var(--progress-bar-bg);
+            stroke-width: 10;
+        }
+        .pomodoro-timer-visual .timer-circle-progress {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s linear, stroke 0.5s;
+        }
+        #pomodoroDisplay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Poppins', monospace;
+            font-size: 2.8em;
+            font-weight: 600;
             color: var(--text-color);
-            font-weight: normal;
         }
-
         .pomodoro-content-wrapper {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center-align all content horizontally */
-            gap: 8px; /* Vertical gap between elements */
-            min-width: 0;
+            align-items: center;
+            gap: 15px;
         }
-
-        #pomodoroDisplay {
-            font-family: 'Poppins', monospace;
-            font-size: 3em; /* Made timer even larger */
+        .pomodoro-status-line {
+            text-align: center;
+        }
+        #pomodoroLabel {
+            font-size: 1.2em;
             font-weight: 600;
-            color: var(--text-color);
-            line-height: 1;
-            width: 100%;
-            text-align: center; /* Ensure it's centered */
+            color: var(--accent-color);
+            margin-bottom: 2px;
         }
-
+        #sessionCounter {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
         .pomodoro-controls {
             display: flex;
-            justify-content: center; /* Center buttons within the control bar */
-            gap: 10px; /* Space between buttons */
+            justify-content: center;
+            gap: 10px;
             width: 100%;
         }
-
         .pomodoro-controls button {
-            width: 42px; /* Increased size */
-            height: 42px; /* Increased size */
-            border-radius: 12px; /* Slightly larger radius to match */
-            font-size: 1.6em; /* Increased icon size */
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
             cursor: pointer;
-            color: var(--button-text);
             background-color: var(--button-bg);
-            border: none;
+            border: 1px solid var(--widget-border-color);
+            color: var(--button-text);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s, background-color 0.2s;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
         }
-
         .pomodoro-controls button:hover {
             transform: scale(1.1);
             background-color: var(--accent-color-translucent);
+            box-shadow: 0 0 10px var(--accent-color-translucent);
         }
-
-        .pomodoro-controls button#startPomodoroBtn { color: var(--progress-bar-fill-complete); }
-        .pomodoro-controls button#pausePomodoroBtn { color: var(--warning-color); }
-        .pomodoro-controls button#resetPomodoroBtn { color: var(--danger-color); }
-
-        .pomodoro-status-line {
-            display: flex;
-            gap: 10px;
-            align-items: baseline;
+        .pomodoro-controls button svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
         }
-        
-        #pomodoroLabel {
-            font-size: 0.9em;
-            font-weight: 500;
-            color: var(--accent-color);
-        }
-        
-        #sessionCounter {
-            font-size: 0.8em;
-            color: var(--text-light);
-            font-weight: 400;
-        }
-
-        /* Settings Panel Styling */
         .pomodoro-settings {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px 15px;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            padding-top: 0;
-            margin-top: 0;
-            border-top: 1px solid transparent;
-            transition: all 0.4s ease-out;
+             width: 100%;
+             max-height: 0;
+             opacity: 0;
+             overflow: hidden;
+             transition: all 0.4s ease-out;
+             border-top: 1px solid transparent;
+             margin-top: 0;
+             padding-top: 0;
+             display: flex;
+             justify-content: space-around;
+             flex-wrap: wrap;
+             gap: 10px;
         }
-        
         .pomodoro-widget.settings-open .pomodoro-settings {
-            max-height: 100px;
-            opacity: 1;
-            padding-top: 10px; 
-            margin-top: 10px;
-            border-top-color: var(--widget-border-color);
+             max-height: 150px;
+             opacity: 1;
+             padding-top: 15px;
+             margin-top: 15px;
+             border-top-color: var(--widget-border-color);
         }
-        
         .pomodoro-settings > div {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             gap: 5px;
         }
-
         .pomodoro-settings label {
-            font-size: 0.85em;
+            font-size: 0.8em;
+            font-weight: 500;
             color: var(--text-light);
         }
-
         .pomodoro-settings input[type="number"] {
-            width: 50px;
-            padding: 4px 6px;
-            border-radius: 6px;
+            width: 55px;
+            padding: 5px;
+            border-radius: 8px;
             background-color: var(--input-bg);
             color: var(--text-color);
-            font-size: 0.9em;
-            text-align: center;
             border: 1px solid var(--widget-border-color);
-            outline: none;
-        }
-        
-        /* Hide unused elements from old layouts */
-        #statusBar, .pomodoro-main-row, .pomodoro-top-row {
-            display: none;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
         }
 
         /* Habit Tracker specific styles */
         .habit-tracker-widget {
-            overflow-x: auto; /* Allow horizontal scrolling for table */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         .habit-tracker-widget .add-habit-form {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
         }
         .habit-tracker-widget #newHabitInput {
             flex-grow: 1;
@@ -1278,111 +1278,336 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 1em;
+            font-size: 0.9em;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: var(--new-todo-btn-shadow);
         }
         .habit-tracker-widget #addHabitBtn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
             box-shadow: var(--new-todo-btn-hover-shadow);
         }
-
-        .habit-table-container {
-            width: 100%;
-            overflow-x: auto; /* Enable horizontal scrolling for the table */
+        #habitListModern {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
-
-        .habit-table {
-            width: 100%;
-            border-collapse: separate; /* Use separate to allow rounded corners */
-            border-spacing: 0;
-            min-width: 500px; /* Ensure table doesn't shrink too much */
-        }
-        .habit-table th, .habit-table td {
-            padding: 12px 10px;
-            text-align: center;
-            border-bottom: 1px solid var(--widget-border-color);
-            border-right: 1px solid var(--widget-border-color);
-            white-space: nowrap; /* Prevent text wrapping */
-        }
-        .habit-table th {
+        .habit-row {
+            display: flex;
+            align-items: center;
+            padding: 10px;
             background-color: var(--button-bg);
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 0.9em;
-            position: sticky;
-            top: 0; /* Make header sticky */
-            z-index: 1;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
         }
-        .habit-table th:first-child {
-            text-align: left;
-            border-top-left-radius: 12px;
+        .habit-row:hover {
+            border-color: var(--widget-border-color);
+            transform: translateX(3px);
         }
-        .habit-table th:last-child {
-            border-top-right-radius: 12px;
-            border-right: none;
-        }
-        .habit-table tr:last-child td {
-            border-bottom: none;
-        }
-        .habit-table td:last-child {
-            border-right: none;
-        }
-
-        .habit-name-cell {
-            text-align: left;
-            font-weight: 500;
-            color: var(--text-color);
-            position: sticky;
-            left: 0; /* Make habit names sticky */
-            background-color: var(--widget-bg); /* Ensure background is visible when sticky */
-            z-index: 1;
+        .habit-details {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 15px;
         }
         .habit-name-text {
+            color: var(--text-color);
+            font-weight: 500;
             cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .habit-name-text:hover {
-            background-color: var(--accent-color-translucent);
+            padding: 2px 4px;
+            border-radius: 4px;
         }
         .habit-name-text:focus {
             outline: 2px solid var(--accent-color);
-            outline-offset: 2px;
+            background-color: var(--accent-color-translucent);
         }
-
-        .daily-check input[type="checkbox"] {
-            accent-color: var(--accent-color);
-            width: 20px; height: 20px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .daily-check input[type="checkbox"]:hover {
-            transform: scale(1.1);
-        }
-        .daily-check input[type="checkbox"]:checked {
-            transform: scale(1.2);
-        }
-
         .delete-habit-btn {
             background: none; border: none;
             color: var(--danger-color);
-            font-size: 1.3em;
-            font-weight: bold;
+            font-size: 1.4em;
             cursor: pointer;
-            padding: 0 5px;
-            line-height: 1;
             border-radius: 50%;
-            transition: color 0.2s, background-color 0.2s, transform 0.2s;
-            opacity: 0.6;
-            margin-left: 10px; /* Space from habit name */
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.2s;
+        }
+        .habit-row:hover .delete-habit-btn {
+            opacity: 0.7;
+            transform: scale(1);
         }
         .delete-habit-btn:hover {
             opacity: 1;
+            background-color: var(--danger-color);
             color: white;
-            background-color: var(--danger-color-hover);
             transform: scale(1.1);
+        }
+        .habit-week-tracker {
+            display: flex;
+            gap: 6px;
+        }
+        .habit-week-tracker input[type="checkbox"] {
+            display: none;
+        }
+        .day-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid var(--widget-border-color);
+            color: var(--text-light);
+            background-color: transparent;
+            transition: all 0.2s ease;
+        }
+        .day-label:hover {
+            background-color: var(--accent-color-translucent);
+            border-color: var(--accent-color);
+        }
+        .habit-week-tracker input[type="checkbox"]:checked + .day-label {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        .day-label.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: transparent;
+        }
+        .day-label.disabled:hover {
+            transform: none;
+            border-color: var(--widget-border-color);
+        }
+        .habit-table-container { display: none; }
+
+        /* NEW/IMPROVED: Notepad Modal Styles */
+        #notepadModal .modal-content {
+            max-width: 900px;
+            width: 90%;
+            height: 85vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .notepad-container {
+            flex-grow: 1;
+            display: flex;
+            min-height: 0; /* Important for flexbox scrolling */
+        }
+        .notes-list-panel {
+            width: 250px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--widget-border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        .notes-list-header {
+            padding: 10px;
+            border-bottom: 1px solid var(--widget-border-color);
+        }
+        #new-note-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #new-note-btn:hover {
+            transform: scale(1.03);
+        }
+        #notes-list {
+            list-style: none;
+            padding: 10px;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .note-list-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        .note-list-item:hover {
+            background-color: var(--button-bg);
+        }
+        .note-list-item.active {
+            background-color: var(--accent-color-translucent);
+            font-weight: 600;
+        }
+        .note-list-item-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            margin-right: 25px;
+        }
+        .note-list-item-date {
+            font-size: 0.75em;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+        .delete-note-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.4em;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .note-list-item:hover .delete-note-btn { opacity: 1; }
+        .delete-note-btn:hover { color: var(--danger-color-hover); background-color: var(--accent-color-translucent); }
+        .note-editor-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .note-editor-panel.empty {
+            justify-content: center;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 1.2em;
+        }
+        #active-note-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--widget-border-color);
+            outline: none;
+        }
+        #active-note-content {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            padding: 15px;
+            font-family: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
+            font-size: 1em;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            outline: none;
+            resize: none;
+            border-radius: 12px;
+            transition: box-shadow 0.2s;
+        }
+        #active-note-content:focus {
+            box-shadow: 0 0 0 3px var(--accent-color-translucent);
+        }
+        #notepad-statusbar {
+            padding-top: 10px;
+            text-align: right;
+            font-size: 0.8em;
+            color: var(--text-light);
+        }
+
+
+        /* NEW: Focus Stats Modal Styles */
+        #focusStatsModal .modal-content {
+            max-width: 650px;
+            padding: 25px;
+        }
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .stats-header h3 {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin: 0;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: var(--button-bg);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card .stat-value {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        .stat-card .stat-label {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        .stats-chart-container h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--text-light);
+        }
+        .stats-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 150px;
+            border-left: 2px solid var(--widget-border-color);
+            border-bottom: 2px solid var(--widget-border-color);
+            padding-top: 10px;
+        }
+        .chart-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex-grow: 1;
+        }
+        .chart-bar {
+            width: 60%;
+            background: var(--accent-color-translucent);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease-out;
+            border: 1px solid var(--accent-color);
+        }
+        .chart-label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--text-light);
         }
 
         /* Animations and Toasts */
@@ -1456,6 +1681,8 @@
             .logo { position: absolute; top: 10px; left: 15px; }
             header nav { margin-top: 50px; width: 100%; display: flex; justify-content: space-around; }
             .motivational-quote-banner { flex-direction: column; text-align: center; }
+            .pomodoro-timer-visual { width: 160px; height: 160px; }
+            #pomodoroDisplay { font-size: 2.4em; }
         }
     </style>
 </head>
@@ -1481,6 +1708,12 @@
 
     <aside class="left-sidebar">
         <button id="newPageBtn">+ Add New List</button>
+        <button class="sidebar-tab-button" id="openNotepadBtn">
+            <span class="tab-icon">📝</span> Notepad
+        </button>
+        <button class="sidebar-tab-button" id="openFocusStatsBtn">
+            <span class="tab-icon">📊</span> Focus Stats
+        </button>
         <button class="sidebar-tab-button" id="viewMoodLogTabBtn">
             <span class="tab-icon">📜</span> View Full Mood Log
         </button>
@@ -1501,6 +1734,7 @@
             </div>
             <p id="weatherDesc">Sunny skies today.</p>
         </div>
+        
         <button class="sidebar-tab-button" id="sidebarStreakBtn">
             <span class="tab-icon">🔥</span> View Streak
         </button>
@@ -1541,66 +1775,55 @@
                 </div>
                 <div id="widgetCalendarGrid" class="calendar-grid-widget"></div>
             </section>
-            <section class="widget pomodoro-widget" id="pomodoroWidget" style="display:none;">
-                <h2 class="drag-handle">🍅</h2>
-                <!-- This wrapper now stacks everything vertically -->
+            <section class="widget pomodoro-widget" id="pomodoroWidget">
+                <h2 class="drag-handle">Pomodoro</h2>
                 <div class="pomodoro-content-wrapper">
-                    <!-- Timer is on its own line -->
-                    <div id="pomodoroDisplay">25:00</div>
-                    <!-- Controls are on their own line -->
-                    <div class="pomodoro-controls">
-                        <button id="startPomodoroBtn" title="Start">▶</button>
-                        <button id="pausePomodoroBtn" style="display:none;" title="Pause">⏸</button>
-                        <button id="resetPomodoroBtn" title="Reset">🔄</button>
-                        <button id="pomodoroSettingsBtn" class="settings-btn" title="Settings">⚙️</button>
+                    <div class="pomodoro-timer-visual">
+                        <svg>
+                            <circle class="timer-circle-bg" cx="90" cy="90" r="80"></circle>
+                            <circle id="pomodoroProgress" class="timer-circle-progress" cx="90" cy="90" r="80"></circle>
+                        </svg>
+                        <div id="pomodoroDisplay">25:00</div>
                     </div>
-                    <!-- Status is on its own line -->
                     <div class="pomodoro-status-line">
                         <h3 id="pomodoroLabel">Focus</h3>
-                        <p id="sessionCounter">1/4</p>
+                        <p id="sessionCounter">1 / 4</p>
                     </div>
-                    <!-- Settings will appear at the bottom -->
-                    <div class="pomodoro-settings">
-                        <div>
-                            <label for="customMinutes">Focus:</label>
-                            <input type="number" id="customMinutes" value="25" min="1" max="90">
-                        </div>
-                        <div>
-                            <label for="breakMinutes">Break:</label>
-                            <input type="number" id="breakMinutes" value="5" min="1" max="30">
-                        </div>
-                        <div>
-                            <label for="totalSessions">Sessions:</label>
-                            <input type="number" id="totalSessions" value="4" min="1" max="10">
-                        </div>
+                    <div class="pomodoro-controls">
+                        <button id="startPomodoroBtn" title="Start"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></button>
+                        <button id="pausePomodoroBtn" title="Pause" style="display:none;"><svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button>
+                        <button id="resetPomodoroBtn" title="Reset"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"></path></svg></button>
+                        <button id="pomodoroSettingsBtn" title="Settings"><svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg></button>
                     </div>
+                     <div class="pomodoro-settings">
+                         <div>
+                             <label for="customMinutes">Focus (min)</label>
+                             <input type="number" id="customMinutes" value="25" min="1" max="90">
+                         </div>
+                         <div>
+                             <label for="breakMinutes">Break (min)</label>
+                             <input type="number" id="breakMinutes" value="5" min="1" max="30">
+                         </div>
+                         <div>
+                             <label for="totalSessions">Sessions</label>
+                             <input type="number" id="totalSessions" value="4" min="1" max="10">
+                         </div>
+                     </div>
                 </div>
                 <audio id="alertSound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
             </section>
-            <section class="widget habit-tracker-widget" id="habitTrackerWidget" style="display:none;">
+            
+            <section class="widget habit-tracker-widget" id="habitTrackerWidget">
                 <h2 class="drag-handle">Habit Tracker</h2>
                 <div class="add-habit-form">
-                    <input type="text" id="newHabitInput" placeholder="Add new habit...">
+                    <input type="text" id="newHabitInput" placeholder="e.g., Drink 8 glasses of water">
                     <button id="addHabitBtn">Add Habit</button>
                 </div>
+                <div id="habitListModern"></div>
                 <div class="habit-table-container">
                     <table class="habit-table">
-                        <thead>
-                            <tr id="habitTableHeader">
-                                <th>Habit</th>
-                                <th>Sun</th>
-                                <th>Mon</th>
-                                <th>Tue</th>
-                                <th>Wed</th>
-                                <th>Thu</th>
-                                <th>Fri</th>
-                                <th>Sat</th>
-                                <th></th> <!-- For delete button -->
-                            </tr>
-                        </thead>
-                        <tbody id="habitTableBody">
-                            <!-- Habits will be rendered here -->
-                        </tbody>
+                        <thead><tr id="habitTableHeader"></tr></thead>
+                        <tbody id="habitTableBody"></tbody>
                     </table>
                 </div>
             </section>
@@ -1620,6 +1843,61 @@
         </div>
     </main>
 
+    <div id="notepadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Notepad</h3>
+                <button id="closeNotepadBtn" class="close-modal-btn" title="Close Notepad">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="notepad-container">
+                <div class="notes-list-panel">
+                    <div class="notes-list-header">
+                        <button id="new-note-btn">+ New Note</button>
+                    </div>
+                    <ul id="notes-list"></ul>
+                </div>
+                <div id="note-editor-panel" class="note-editor-panel">
+                     </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="focusStatsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="stats-header">
+                <h3>Focus Statistics</h3>
+                <button id="closeFocusStatsBtn" class="close-modal-btn" title="Close Stats">
+                     <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div id="statsFocusTime" class="stat-value">0m 0s</div>
+                    <div class="stat-label">Focus</div>
+                </div>
+                <div class="stat-card">
+                    <div id="statsTasks" class="stat-value">0</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div id="statsSessions" class="stat-value">0</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                 <div class="stat-card">
+                    <div id="statsBreakTime" class="stat-value">0m 0s</div>
+                    <div class="stat-label">Break</div>
+                </div>
+            </div>
+            <div class="stats-chart-container">
+                <h4>Last 7 Days Focus</h4>
+                <div id="statsChart" class="stats-chart">
+                 </div>
+            </div>
+        </div>
+    </div>
+
     <div id="moodLoggingModal" class="modal-overlay">
         <div class="modal-content">
             <h3>How are you feeling?</h3>
@@ -1636,7 +1914,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Full Mood Log</h3>
-                <button id="closeFullLogViewBtn" class="close-full-log-btn" title="Close Log View">×</button>
+                <button id="closeFullLogViewBtn" class="close-modal-btn" title="Close Log View">
+                     <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             <div class="modal-body">
                 <ul id="fullLogListContainer"></ul>
@@ -1665,7 +1945,9 @@
     
     <div id="horoscopeModal" class="modal-overlay">
         <div class="modal-content">
-            <button id="closeHoroscopeBtn" class="close-horoscope-btn" title="Close">×</button>
+            <button id="closeHoroscopeBtn" class="close-modal-btn" title="Close">
+                 <svg viewBox="0 0 24 24" style="stroke: white;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
             <div id="horoscopeEmoji"></div>
             <p id="horoscopeModalText"></p>
         </div>
@@ -1673,12 +1955,12 @@
     
     <div id="streakModal" class="modal-overlay">
         <div class="modal-content">
-              <h3>Your Weekly Progress 🎉</h3>
-              <p id="streakModalMessage"></p>
-              <div id="streakWeekView" class="streak-week-view"></div>
-              <div class="modal-actions">
-                  <button id="closeStreakModalBtn" class="cancel-mood-btn">Close</button>
-              </div>
+             <h3>Your Weekly Progress 🎉</h3>
+             <p id="streakModalMessage"></p>
+             <div id="streakWeekView" class="streak-week-view"></div>
+             <div class="modal-actions">
+                 <button id="closeStreakModalBtn" class="cancel-mood-btn">Close</button>
+             </div>
         </div>
     </div>
     
@@ -1690,11 +1972,510 @@
         document.addEventListener('DOMContentLoaded', () => {
             let todoCardsData = [];
             let reminders = [];
-            let habitsData = []; // New array for habits
+            let habitsData = [];
             let typingIntervalId = null;
 
-            // ===== STREAK & ACHIEVEMENT CONSTANTS =====
-            const streakAchievements = {
+            // ===== HELPER: Get Date String =====
+            function getYYYYMMDD(date) {
+                return date.toISOString().split('T')[0];
+            }
+
+            // ===== FOCUS STATS LOGIC =====
+            function logFocusSession(minutes) {
+                const todayStr = getYYYYMMDD(new Date());
+                let stats = JSON.parse(localStorage.getItem('focusStats')) || {};
+                if (!stats[todayStr]) {
+                    stats[todayStr] = { focus_seconds: 0, break_seconds: 0, sessions_completed: 0, tasks_completed: 0 };
+                }
+                stats[todayStr].focus_seconds += minutes * 60;
+                stats[todayStr].sessions_completed += 1;
+                localStorage.setItem('focusStats', JSON.stringify(stats));
+            }
+
+            function logBreakSession(minutes) {
+                const todayStr = getYYYYMMDD(new Date());
+                let stats = JSON.parse(localStorage.getItem('focusStats')) || {};
+                if (!stats[todayStr]) {
+                    stats[todayStr] = { focus_seconds: 0, break_seconds: 0, sessions_completed: 0, tasks_completed: 0 };
+                }
+                stats[todayStr].break_seconds += minutes * 60;
+                localStorage.setItem('focusStats', JSON.stringify(stats));
+            }
+
+            function logTaskCompletion() {
+                const todayStr = getYYYYMMDD(new Date());
+                let stats = JSON.parse(localStorage.getItem('focusStats')) || {};
+                if (!stats[todayStr]) {
+                    stats[todayStr] = { focus_seconds: 0, break_seconds: 0, sessions_completed: 0, tasks_completed: 0 };
+                }
+                stats[todayStr].tasks_completed += 1;
+                localStorage.setItem('focusStats', JSON.stringify(stats));
+            }
+
+            function formatSeconds(seconds) {
+                if (seconds < 60) return `${seconds}s`;
+                const mins = Math.floor(seconds / 60);
+                return `${mins}m ${seconds % 60}s`;
+            }
+
+            function renderFocusStats() {
+                const stats = JSON.parse(localStorage.getItem('focusStats')) || {};
+                const todayStr = getYYYYMMDD(new Date());
+                const todayStats = stats[todayStr] || { focus_seconds: 0, break_seconds: 0, sessions_completed: 0, tasks_completed: 0 };
+                
+                document.getElementById('statsFocusTime').textContent = formatSeconds(todayStats.focus_seconds);
+                document.getElementById('statsBreakTime').textContent = formatSeconds(todayStats.break_seconds);
+                document.getElementById('statsTasks').textContent = todayStats.tasks_completed;
+                document.getElementById('statsSessions').textContent = todayStats.sessions_completed;
+
+                const chartEl = document.getElementById('statsChart');
+                chartEl.innerHTML = '';
+                let weeklyFocusData = [];
+                let maxFocus = 0;
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = getYYYYMMDD(date);
+                    const dayStats = stats[dateStr] || { focus_seconds: 0 };
+                    const focusMins = Math.round(dayStats.focus_seconds / 60);
+                    weeklyFocusData.push({
+                        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                        value: focusMins
+                    });
+                    if (focusMins > maxFocus) maxFocus = focusMins;
+                }
+
+                maxFocus = maxFocus === 0 ? 60 : maxFocus;
+
+                weeklyFocusData.forEach(day => {
+                    const barGroup = document.createElement('div');
+                    barGroup.className = 'chart-bar-group';
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+                    bar.style.height = `${(day.value / maxFocus) * 100}%`;
+                    bar.title = `${day.value} minutes`;
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    label.textContent = day.label;
+                    barGroup.appendChild(bar);
+                    barGroup.appendChild(label);
+                    chartEl.appendChild(barGroup);
+                });
+            }
+
+            function setupFocusStatsModal() {
+                const modal = document.getElementById('focusStatsModal');
+                const openBtn = document.getElementById('openFocusStatsBtn');
+                const closeBtn = document.getElementById('closeFocusStatsBtn');
+                openBtn.addEventListener('click', () => {
+                    renderFocusStats();
+                    modal.style.display = 'flex';
+                });
+                closeBtn.addEventListener('click', () => modal.style.display = 'none');
+            }
+
+
+            // ===== NEW/IMPROVED: Notepad Logic =====
+            function setupNotepad() {
+                const modal = document.getElementById('notepadModal');
+                const openBtn = document.getElementById('openNotepadBtn');
+                const closeBtn = document.getElementById('closeNotepadBtn');
+                const newNoteBtn = document.getElementById('new-note-btn');
+                const notesListEl = document.getElementById('notes-list');
+                const editorPanel = document.getElementById('note-editor-panel');
+
+                let notes = [];
+                let activeNoteId = null;
+                let debounceTimer;
+
+                const loadNotes = () => {
+                    const storedNotes = localStorage.getItem('userNotes');
+                    notes = storedNotes ? JSON.parse(storedNotes) : [];
+                    if(notes.length > 0) {
+                       activeNoteId = localStorage.getItem('activeNoteId') || notes[0].id;
+                       if (!notes.find(n => n.id === activeNoteId)) {
+                           activeNoteId = notes.length > 0 ? notes[0].id : null;
+                       }
+                    } else {
+                        activeNoteId = null;
+                    }
+                };
+                
+                const saveNotes = () => {
+                    localStorage.setItem('userNotes', JSON.stringify(notes));
+                    localStorage.setItem('activeNoteId', activeNoteId);
+                };
+
+                const renderNoteList = () => {
+                    notes.sort((a,b) => new Date(b.lastModified) - new Date(a.lastModified));
+                    notesListEl.innerHTML = '';
+                    if (notes.length === 0) {
+                        notesListEl.innerHTML = '<li style="text-align: center; color: var(--text-light); padding: 20px;">No notes yet.</li>';
+                        return;
+                    }
+                    notes.forEach(note => {
+                        const li = document.createElement('li');
+                        li.className = 'note-list-item';
+                        li.dataset.noteId = note.id;
+                        if (note.id === activeNoteId) {
+                            li.classList.add('active');
+                        }
+                        li.innerHTML = `
+                            <span class="note-list-item-title">${note.title || 'Untitled Note'}</span>
+                            <span class="note-list-item-date">${new Date(note.lastModified).toLocaleString()}</span>
+                            <button class="delete-note-btn" title="Delete Note">🗑️</button>
+                        `;
+                        notesListEl.appendChild(li);
+                    });
+                };
+
+                const renderEditor = () => {
+                    const activeNote = notes.find(n => n.id === activeNoteId);
+                    if (activeNote) {
+                        editorPanel.classList.remove('empty');
+                        editorPanel.innerHTML = `
+                            <input type="text" id="active-note-title" placeholder="Note Title" value="${activeNote.title}">
+                            <textarea id="active-note-content" placeholder="Start writing...">${activeNote.content}</textarea>
+                            <div id="notepad-statusbar">Words: 0 | Chars: 0</div>
+                        `;
+                        updateStatusbar();
+                    } else {
+                        editorPanel.classList.add('empty');
+                        editorPanel.innerHTML = 'Select a note or create a new one.';
+                    }
+                };
+                
+                const updateStatusbar = () => {
+                    const contentEl = document.getElementById('active-note-content');
+                    const statusbarEl = document.getElementById('notepad-statusbar');
+                    if (!contentEl || !statusbarEl) return;
+                    
+                    const text = contentEl.value;
+                    const words = text.trim().split(/\s+/).filter(Boolean).length;
+                    const chars = text.length;
+                    statusbarEl.textContent = `Words: ${words} | Chars: ${chars}`;
+                };
+
+                const updateNoteContent = () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const activeNote = notes.find(n => n.id === activeNoteId);
+                        if (!activeNote) return;
+                        
+                        const titleInput = document.getElementById('active-note-title');
+                        const contentInput = document.getElementById('active-note-content');
+                        
+                        activeNote.title = titleInput.value.trim() || "Untitled Note";
+                        activeNote.content = contentInput.value;
+                        activeNote.lastModified = new Date().toISOString();
+                        
+                        saveNotes();
+                        renderNoteList(); // Re-render to show updated title and order
+                        updateStatusbar();
+                    }, 300); // 300ms debounce
+                };
+
+                newNoteBtn.addEventListener('click', () => {
+                    const newNote = {
+                        id: `note-${Date.now()}`,
+                        title: 'Untitled Note',
+                        content: '',
+                        lastModified: new Date().toISOString()
+                    };
+                    notes.push(newNote);
+                    activeNoteId = newNote.id;
+                    saveNotes();
+                    renderNoteList();
+                    renderEditor();
+                    document.getElementById('active-note-title').focus();
+                });
+
+                notesListEl.addEventListener('click', (e) => {
+                    const listItem = e.target.closest('.note-list-item');
+                    if (!listItem) return;
+                    
+                    if (e.target.classList.contains('delete-note-btn')) {
+                        const noteIdToDelete = listItem.dataset.noteId;
+                        if (confirm('Are you sure you want to delete this note?')) {
+                            notes = notes.filter(n => n.id !== noteIdToDelete);
+                            if (activeNoteId === noteIdToDelete) {
+                                activeNoteId = notes.length > 0 ? notes[0].id : null;
+                            }
+                            saveNotes();
+                            renderNoteList();
+                            renderEditor();
+                        }
+                    } else {
+                        activeNoteId = listItem.dataset.noteId;
+                        localStorage.setItem('activeNoteId', activeNoteId); // Save selection immediately
+                        renderNoteList();
+                        renderEditor();
+                    }
+                });
+
+                editorPanel.addEventListener('input', (e) => {
+                    if (e.target.matches('#active-note-title, #active-note-content')) {
+                        updateNoteContent();
+                    }
+                });
+
+                openBtn.addEventListener('click', () => {
+                    loadNotes();
+                    renderNoteList();
+                    renderEditor();
+                    modal.style.display = 'flex';
+                });
+                closeBtn.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+            }
+
+            // ===== DATA PERSISTENCE & RENDERING =====
+            function saveData() {
+                localStorage.setItem('todoCards', JSON.stringify(todoCardsData));
+                localStorage.setItem('reminders', JSON.stringify(reminders));
+                localStorage.setItem('habits', JSON.stringify(habitsData));
+                renderCalendarWidget();
+                renderHabitTracker();
+            }
+
+            function toggleReminderComplete(reminderId) {
+                const reminder = reminders.find(r => r.id === reminderId);
+                if (reminder) {
+                    reminder.completed = !reminder.completed;
+                    if(reminder.completed) {
+                        logTaskCompletion();
+                    }
+                    renderReminders();
+                    saveData();
+                }
+            }
+
+             function addTaskToTodoCard(cardElement, taskText = "New Task", completed = false, dueDate = '', taskId = `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`) {
+                const taskList = cardElement.querySelector('.task-list');
+                const taskItem = document.createElement('li');
+                taskItem.dataset.taskId = taskId;
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${completed ? 'checked' : ''}>
+                    <div class="task-content">
+                        <span class="task-label" contenteditable="true">${taskText}</span>
+                        <input type="date" class="task-due-date-input" value="${dueDate}">
+                    </div>
+                    <button class="delete-task-btn" title="Delete Task">×</button>`;
+                taskList.appendChild(taskItem);
+
+                const cardData = todoCardsData.find(card => card.id === cardElement.id);
+                if (cardData && !cardData.tasks.some(t => t.id === taskId)) {
+                    cardData.tasks.push({ id: taskId, text: taskText, completed: completed, dueDate: dueDate });
+                }
+
+                taskItem.querySelector('.task-checkbox').addEventListener('change', (e) => {
+                    const task = cardData.tasks.find(t => t.id === taskId);
+                    if (task) task.completed = e.target.checked;
+                    if (e.target.checked) {
+                        triggerConfetti();
+                        logTaskCompletion();
+                    }
+                    saveData();
+                    updateProgressForCard(cardElement);
+                    checkOverdueStatus(taskItem, task.completed, task.dueDate);
+                });
+
+                taskItem.querySelector('.task-label').addEventListener('blur', (e) => {
+                    const task = cardData.tasks.find(t => t.id === taskId);
+                    if (task) task.text = e.target.textContent.trim();
+                    saveData();
+                });
+                taskItem.querySelector('.task-due-date-input').addEventListener('change', (e) => {
+                    const task = cardData.tasks.find(t => t.id === taskId);
+                    if (task) task.dueDate = e.target.value;
+                    saveData();
+                    checkOverdueStatus(taskItem, task.completed, task.dueDate);
+                });
+                taskItem.querySelector('.delete-task-btn').addEventListener('click', () => {
+                    const index = cardData.tasks.findIndex(t => t.id === taskId);
+                    if (index > -1) cardData.tasks.splice(index, 1);
+                    taskItem.remove();
+                    updateProgressForCard(cardElement);
+                    saveData();
+                });
+                checkOverdueStatus(taskItem, completed, dueDate);
+                updateProgressForCard(cardElement);
+            }
+
+            // ===== POMODORO TIMER LOGIC =====
+            let pomodoroInterval;
+            let isRunning = false;
+            let defaultFocusMinutes = 25;
+            let defaultBreakMinutes = 5;
+            let totalSessionLimit = 4;
+            let isBreak = false;
+            let timeLeft;
+            let totalDuration;
+            let sessionCount = 1;
+            
+            const pomodoroWidget = document.getElementById("pomodoroWidget");
+            const openPomodoroBtn = document.getElementById("openPomodoroBtn");
+            const startBtn = document.getElementById("startPomodoroBtn");
+            const pauseBtn = document.getElementById("pausePomodoroBtn");
+            const resetBtn = document.getElementById("resetPomodoroBtn");
+            const display = document.getElementById("pomodoroDisplay");
+            const label = document.getElementById("pomodoroLabel");
+            const customMinutesInput = document.getElementById("customMinutes");
+            const breakMinutesInput = document.getElementById("breakMinutes");
+            const sessionCounter = document.getElementById("sessionCounter");
+            const totalSessionsInput = document.getElementById("totalSessions");
+            const alertSound = document.getElementById("alertSound");
+            const pomodoroSettingsBtn = document.getElementById("pomodoroSettingsBtn");
+            const progressCircle = document.getElementById("pomodoroProgress");
+            if (progressCircle) {
+                const circleRadius = progressCircle.r.baseVal.value;
+                const circumference = 2 * Math.PI * circleRadius;
+                progressCircle.style.strokeDasharray = circumference;
+            }
+
+            function savePomodoroState() {
+                localStorage.setItem('pomodoroData', JSON.stringify({
+                    focus: defaultFocusMinutes,
+                    break: defaultBreakMinutes,
+                    sessions: totalSessionLimit,
+                    isBreak,
+                    timeLeft,
+                    sessionCount,
+                    isRunning
+                }));
+            }
+
+            function loadPomodoroState() {
+                const data = JSON.parse(localStorage.getItem('pomodoroData')) || {};
+                defaultFocusMinutes = data.focus || 25;
+                defaultBreakMinutes = data.break || 5;
+                totalSessionLimit = data.sessions || 4;
+                isBreak = data.isBreak || false;
+                sessionCount = data.sessionCount || 1;
+                isRunning = data.isRunning || false;
+                timeLeft = data.timeLeft ?? (defaultFocusMinutes * 60);
+                totalDuration = isBreak ? defaultBreakMinutes * 60 : defaultFocusMinutes * 60;
+                customMinutesInput.value = defaultFocusMinutes;
+                breakMinutesInput.value = defaultBreakMinutes;
+                totalSessionsInput.value = totalSessionLimit;
+                updateUI();
+                if (isRunning) {
+                    startTimer();
+                }
+            }
+            
+            function updateUI() {
+                const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+                const seconds = String(timeLeft % 60).padStart(2, "0");
+                display.textContent = `${minutes}:${seconds}`;
+                if (progressCircle) {
+                    const progress = (totalDuration - timeLeft) / totalDuration;
+                    const circumference = 2 * Math.PI * progressCircle.r.baseVal.value;
+                    const offset = circumference * (1 - progress);
+                    progressCircle.style.strokeDashoffset = offset;
+                }
+                label.textContent = isBreak ? "Break" : "Focus";
+                sessionCounter.textContent = `${sessionCount} / ${totalSessionLimit}`;
+                startBtn.style.display = isRunning ? "none" : "flex";
+                pauseBtn.style.display = isRunning ? "flex" : "none";
+            }
+            
+            function startTimer() {
+                if (isRunning) clearInterval(pomodoroInterval);
+                if (sessionCount > totalSessionLimit) return;
+                isRunning = true;
+                if (!totalDuration || timeLeft === totalDuration) {
+                    totalDuration = timeLeft;
+                }
+                pomodoroInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                    } else {
+                        clearInterval(pomodoroInterval);
+                        isRunning = false;
+                        alertSound.play();
+                        
+                        if (isBreak) {
+                            logBreakSession(defaultBreakMinutes);
+                        } else {
+                            logFocusSession(defaultFocusMinutes);
+                        }
+                        if (!isBreak && sessionCount >= totalSessionLimit) {
+                            showToast("All Pomodoro sessions complete!", 'achievement');
+                            resetTimerFull();
+                            return;
+                        }
+                        isBreak = !isBreak;
+                        if (isBreak) {
+                            showToast("Break time! Relax.", 'info');
+                            timeLeft = defaultBreakMinutes * 60;
+                        } else {
+                            sessionCount++;
+                            showToast("Back to work!", 'info');
+                            timeLeft = defaultFocusMinutes * 60;
+                        }
+                        totalDuration = timeLeft;
+                        startTimer();
+                    }
+                    updateUI();
+                    savePomodoroState();
+                }, 1000);
+                updateUI();
+                savePomodoroState();
+            }
+            
+            function pauseTimer() {
+                clearInterval(pomodoroInterval);
+                isRunning = false;
+                updateUI();
+                savePomodoroState();
+            }
+            
+            function resetTimer(isFullReset = false) {
+                 clearInterval(pomodoroInterval);
+                 isRunning = false;
+                 if(isFullReset) {
+                    sessionCount = 1;
+                    isBreak = false;
+                 }
+                 timeLeft = isBreak ? defaultBreakMinutes * 60 : defaultFocusMinutes * 60;
+                 totalDuration = timeLeft;
+                 updateUI();
+                 savePomodoroState();
+            }
+
+            function resetTimerFull() {
+                resetTimer(true);
+            }
+            
+            startBtn.addEventListener("click", startTimer);
+            pauseBtn.addEventListener("click", pauseTimer);
+            resetBtn.addEventListener("click", resetTimerFull);
+            
+            customMinutesInput.addEventListener("change", () => {
+                defaultFocusMinutes = parseInt(customMinutesInput.value) || 25;
+                if (!isBreak) resetTimer();
+            });
+            breakMinutesInput.addEventListener("change", () => {
+                defaultBreakMinutes = parseInt(breakMinutesInput.value) || 5;
+                if (isBreak) resetTimer();
+            });
+            totalSessionsInput.addEventListener("change", () => {
+                totalSessionLimit = parseInt(totalSessionsInput.value) || 4;
+                if (sessionCount > totalSessionLimit) sessionCount = totalSessionLimit;
+                updateUI();
+                savePomodoroState();
+            });
+            pomodoroSettingsBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                pomodoroWidget.classList.toggle("settings-open");
+            });
+            openPomodoroBtn.addEventListener("click", () => {
+                pomodoroWidget.style.display = (pomodoroWidget.style.display === "none" || !pomodoroWidget.style.display) ? "flex" : "none";
+            });
+             
+             const streakAchievements = {
                 3: "🔥 3-Day Streak! You're building a great habit!",
                 7: "🎉 7-Day Streak! A full week of wellness!",
                 14: "🚀 14-Day Streak! You're a consistent star!",
@@ -1702,16 +2483,13 @@
                 50: "⭐ 50-Day Legend! You are a wellness superstar!"
             };
 
-            // ===== TOAST NOTIFICATION FUNCTION =====
             function showToast(message, type = 'info') {
                 const container = document.getElementById('toast-container');
                 if (!container) return;
-                
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
                 toast.textContent = message;
                 container.appendChild(toast);
-
                 setTimeout(() => toast.classList.add('show'), 100);
                 setTimeout(() => {
                     toast.classList.remove('show');
@@ -1719,23 +2497,18 @@
                 }, 4000);
             }
             
-            // ===== STREAK & ACHIEVEMENT LOGIC =====
             function populateStreakModal(count, history) {
                 const weekView = document.getElementById('streakWeekView');
                 const messageEl = document.getElementById('streakModalMessage');
                 const modal = document.getElementById('streakModal');
                 if (!weekView || !messageEl || !modal) return;
-                
                 const modalTitle = modal.querySelector('h3');
                 if (modalTitle) modalTitle.innerHTML = `Your ${count}-Day Streak 🎉`;
-                
                 weekView.innerHTML = '';
                 messageEl.textContent = count > 1 ? `You have a ${count}-day streak. Fantastic work! Keep the fire alive.` : `Every great journey starts with a single step. Let's get this streak started!`;
-
                 const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
                 const today = new Date();
                 const dayOfWeek = today.getDay();
-                
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - dayOfWeek);
 
@@ -1743,21 +2516,16 @@
                     const dayDate = new Date(startOfWeek);
                     dayDate.setDate(startOfWeek.getDate() + i);
                     const dayStr = dayDate.toLocaleDateString('en-CA');
-
                     const slot = document.createElement('div');
                     slot.className = 'day-slot';
-                    
                     const nameEl = document.createElement('div');
                     nameEl.className = 'day-name';
                     nameEl.textContent = dayNames[i];
-
                     const iconEl = document.createElement('div');
                     iconEl.className = 'day-icon';
                     iconEl.textContent = '🔥';
-
                     if (history.includes(dayStr)) slot.classList.add('active');
                     if (i === dayOfWeek) slot.classList.add('today');
-                    
                     slot.appendChild(iconEl);
                     slot.appendChild(nameEl);
                     weekView.appendChild(slot);
@@ -1797,22 +2565,18 @@
                 const today = new Date();
                 const todayStr = today.toLocaleDateString('en-CA');
                 let streakData = JSON.parse(localStorage.getItem('streakData')) || { count: 0, lastLogin: null, loginHistory: [] };
-
                 if (streakData.lastLogin === todayStr) {
                     renderStreak(streakData.count);
                     return;
                 }
-                
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
                 const yesterdayStr = yesterday.toLocaleDateString('en-CA');
-
                 if (streakData.lastLogin === yesterdayStr) {
                     streakData.count++;
                 } else {
                     streakData.count = 1;
                 }
-                
                 if (!streakData.loginHistory.includes(todayStr)) {
                     streakData.loginHistory.push(todayStr);
                 }
@@ -1821,12 +2585,10 @@
                 }
                 streakData.lastLogin = todayStr;
                 localStorage.setItem('streakData', JSON.stringify(streakData));
-
                 renderStreak(streakData.count);
                 checkAndAwardAchievement(streakData.count);
             }
-
-            // ===== WEATHER WIDGET LOGIC =====
+            
             function fetchWeather() {
                 const weatherData = {
                     temp: "75°F",
@@ -1840,7 +2602,6 @@
                 document.getElementById('weatherIcon').textContent = weatherData.icon;
             }
 
-            // ===== AVATAR & THEME FUNCTIONALITY =====
             const avatarImage = document.getElementById('avatarImage');
             const avatarInput = document.getElementById('avatarInput');
             const deleteAvatarBtn = document.getElementById('deleteAvatarBtn');
@@ -1886,7 +2647,6 @@
                 themeIcon.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
             });
 
-            // ===== MOTIVATIONAL QUOTE =====
             const quotes = [
                 "The only way to do great work is to love what you do. – Steve Jobs",
                 "Believe you can and you're halfway there. – Theodore Roosevelt",
@@ -1909,30 +2669,20 @@
                 }
             }
 
-            // ===== DATA PERSISTENCE & RENDERING =====
-            function saveData() {
-                localStorage.setItem('todoCards', JSON.stringify(todoCardsData));
-                localStorage.setItem('reminders', JSON.stringify(reminders));
-                localStorage.setItem('habits', JSON.stringify(habitsData)); // Save habits
-                renderCalendarWidget();
-                renderHabitTracker(); // Re-render habit tracker on save
-            }
-
             function loadData() {
                 const storedTodoCards = localStorage.getItem('todoCards');
                 if (storedTodoCards) todoCardsData = JSON.parse(storedTodoCards);
                 const storedReminders = localStorage.getItem('reminders');
                 if (storedReminders) reminders = JSON.parse(storedReminders);
-                const storedHabits = localStorage.getItem('habits'); // Load habits
+                const storedHabits = localStorage.getItem('habits');
                 if (storedHabits) habitsData = JSON.parse(storedHabits);
 
                 renderTodoCards();
                 renderReminders();
                 renderCalendarWidget();
-                renderHabitTracker(); // Initial render of habit tracker
+                renderHabitTracker();
             }
 
-            // ===== TODO CARD LOGIC =====
             function renderTodoCards() {
                 document.querySelectorAll('.todo-card').forEach(card => card.remove());
                 todoCardsData.forEach(cardData => {
@@ -1990,55 +2740,7 @@
                 }
                 saveData();
             }
-
-            function addTaskToTodoCard(cardElement, taskText = "New Task", completed = false, dueDate = '', taskId = `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`) {
-                const taskList = cardElement.querySelector('.task-list');
-                const taskItem = document.createElement('li');
-                taskItem.dataset.taskId = taskId;
-                taskItem.innerHTML = `
-                    <input type="checkbox" class="task-checkbox" ${completed ? 'checked' : ''}>
-                    <div class="task-content">
-                        <span class="task-label" contenteditable="true">${taskText}</span>
-                        <input type="date" class="task-due-date-input" value="${dueDate}">
-                    </div>
-                    <button class="delete-task-btn" title="Delete Task">×</button>`;
-                taskList.appendChild(taskItem);
-
-                const cardData = todoCardsData.find(card => card.id === cardElement.id);
-                if (!cardData.tasks.some(t => t.id === taskId)) {
-                    cardData.tasks.push({ id: taskId, text: taskText, completed: completed, dueDate: dueDate });
-                }
-
-                taskItem.querySelector('.task-label').addEventListener('blur', (e) => {
-                    const task = cardData.tasks.find(t => t.id === taskId);
-                    if (task) task.text = e.target.textContent.trim();
-                    saveData();
-                });
-                taskItem.querySelector('.task-due-date-input').addEventListener('change', (e) => {
-                    const task = cardData.tasks.find(t => t.id === taskId);
-                    if (task) task.dueDate = e.target.value;
-                    saveData();
-                    checkOverdueStatus(taskItem, task.completed, task.dueDate);
-                });
-                taskItem.querySelector('.task-checkbox').addEventListener('change', (e) => {
-                    const task = cardData.tasks.find(t => t.id === taskId);
-                    if (task) task.completed = e.target.checked;
-                    if (e.target.checked) triggerConfetti();
-                    saveData();
-                    updateProgressForCard(cardElement);
-                    checkOverdueStatus(taskItem, task.completed, task.dueDate);
-                });
-                taskItem.querySelector('.delete-task-btn').addEventListener('click', () => {
-                    const index = cardData.tasks.findIndex(t => t.id === taskId);
-                    if (index > -1) cardData.tasks.splice(index, 1);
-                    taskItem.remove();
-                    updateProgressForCard(cardElement);
-                    saveData();
-                });
-                checkOverdueStatus(taskItem, completed, dueDate);
-                updateProgressForCard(cardElement);
-            }
-
+            
             function checkOverdueStatus(taskItem, completed, dueDate) {
                 const taskLabel = taskItem.querySelector('.task-label');
                 if (completed || !dueDate) {
@@ -2090,7 +2792,6 @@
             });
             document.getElementById('newPageBtn').addEventListener('click', createTodoCard);
 
-            // ===== REMINDERS WIDGET & MODAL LOGIC =====
             const remindersListEl = document.getElementById('remindersList');
             const newReminderInput = document.getElementById('newReminderInput');
             const addReminderBtn = document.getElementById('addReminderBtn');
@@ -2254,22 +2955,12 @@
                 renderReminders();
                 saveData();
             }
-            
-            function toggleReminderComplete(reminderId) {
-                const reminder = reminders.find(r => r.id === reminderId);
-                if (reminder) {
-                    reminder.completed = !reminder.completed;
-                    renderReminders();
-                    saveData();
-                }
-            }
 
             addReminderBtn.addEventListener('click', openCalendarModal);
             newReminderInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') openCalendarModal();
             });
 
-            // ===== CALENDAR WIDGET LOGIC =====
             const calWidgetMonthYear = document.getElementById('calMonthYear');
             const calWidgetGrid = document.getElementById('widgetCalendarGrid');
             const calWidgetPrevBtn = document.getElementById('calPrevMonthBtn');
@@ -2370,7 +3061,6 @@
                 }
             }
             
-            // ===== MOOD TRACKER LOGIC =====
             const moodEmojiTriggers = document.querySelectorAll('.mood-emoji-trigger');
             const moodLoggingModal = document.getElementById('moodLoggingModal');
             const modalSelectedMoodEmoji = document.getElementById('modalSelectedMoodEmoji');
@@ -2474,7 +3164,6 @@
 
             closeFullLogViewBtn.addEventListener('click', closeFullLogViewModal);
 
-            // ===== HOROSCOPE MODAL LOGIC =====
             const getHoroscopeBtn = document.getElementById('getHoroscopeBtn');
             const horoscopeModal = document.getElementById('horoscopeModal');
             const closeHoroscopeBtn = document.getElementById('closeHoroscopeBtn');
@@ -2550,7 +3239,6 @@
 
             closeHoroscopeBtn.addEventListener('click', closeHoroscopeModal);
             
-            // ===== UNIVERSAL MODAL & CONFETTI LOGIC =====
             const closeStreakModalBtn = document.getElementById('closeStreakModalBtn');
             if (closeStreakModalBtn) {
                 closeStreakModalBtn.addEventListener('click', () => {
@@ -2568,11 +3256,8 @@
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.addEventListener('click', (event) => {
                     if (event.target === modal) {
-                        if (modal.id === 'fullMoodLogViewModal') closeFullLogViewModal();
-                        if (modal.id === 'moodLoggingModal') closeModal();
-                        if (modal.id === 'reminderCalendarModal') closeCalendarModal();
-                        if (modal.id === 'horoscopeModal') closeHoroscopeModal();
-                        if (modal.id === 'streakModal' && closeStreakModalBtn) closeStreakModalBtn.click();
+                        const closeBtn = modal.querySelector('.close-modal-btn, .cancel-mood-btn, #cancelReminderBtn, #closeStreakModalBtn');
+                        if(closeBtn) closeBtn.click();
                     }
                 });
             });
@@ -2592,7 +3277,6 @@
                 }
             }
 
-            // ===== DRAG & DROP WIDGETS =====
             function applyWidgetOrder() {
                 const widgetsContainer = document.querySelector('.widgets-container');
                 try {
@@ -2633,25 +3317,20 @@
                     applyWidgetOrder();
                 }
             }
-
-            // ===== SEARCH FUNCTIONALITY =====
+            
             function performSearch(query) {
                 query = query.toLowerCase().trim();
                 const noResultsEl = document.getElementById('noSearchResults');
                 let anyResultsFound = false;
 
-                const applyVisibility = (element, show) => {
-                    if (!element.style.transition) {
-                        element.style.transition = 'opacity 0.4s ease';
-                    }
-                    element.style.opacity = show ? '1' : '0.2';
-                    element.style.pointerEvents = show ? 'auto' : 'none';
-                    element.style.display = show ? '' : 'none'; // Also set display to none to remove from layout
+                const applyVisibility = (element, show, displayType = 'flex') => {
+                    if (!element) return;
+                    element.style.display = show ? displayType : 'none';
                 };
 
                 if (query === '') {
-                    document.querySelectorAll('.reminders-widget, .todo-card, .habit-tracker-widget, .pomodoro-widget, #remindersList li, .todo-card .task-list li, .habit-table tbody tr').forEach(el => applyVisibility(el, true));
-                    applyVisibility(document.getElementById('calendarWidget'), true);
+                    document.querySelectorAll('.widget').forEach(el => applyVisibility(el, true));
+                    document.querySelectorAll('#remindersList li, .task-list li, .habit-row').forEach(el => applyVisibility(el, true, 'flex'));
                     if (noResultsEl) noResultsEl.style.display = 'none';
                     return;
                 }
@@ -2661,10 +3340,10 @@
                 remindersWidget.querySelectorAll('li').forEach(li => {
                     const text = li.querySelector('.reminder-text')?.textContent.toLowerCase();
                     const match = text && text.includes(query);
-                    applyVisibility(li, match);
+                    applyVisibility(li, match, 'flex');
                     if (match) remindersVisible = true;
                 });
-                applyVisibility(remindersWidget, remindersVisible);
+                applyVisibility(remindersWidget, remindersVisible, 'flex');
                 if (remindersVisible) anyResultsFound = true;
 
                 document.querySelectorAll('.todo-card').forEach(card => {
@@ -2675,111 +3354,102 @@
                         const label = taskLi.querySelector('.task-label')?.textContent.toLowerCase();
                         const taskMatches = label && label.includes(query);
                         const isVisible = titleMatches || taskMatches;
-                        applyVisibility(taskLi, isVisible);
+                        applyVisibility(taskLi, isVisible, 'flex');
                         if (isVisible) hasVisibleTask = true;
                     });
                     const showCard = titleMatches || hasVisibleTask;
-                    applyVisibility(card, showCard);
+                    applyVisibility(card, showCard, 'flex');
                     if (showCard) anyResultsFound = true;
                 });
-
+                
                 const habitTrackerWidget = document.getElementById('habitTrackerWidget');
                 let habitsVisible = false;
-                habitTrackerWidget.querySelectorAll('.habit-table tbody tr').forEach(habitRow => {
+                habitTrackerWidget.querySelectorAll('.habit-row').forEach(habitRow => {
                     const habitName = habitRow.querySelector('.habit-name-text')?.textContent.toLowerCase();
                     const match = habitName && habitName.includes(query);
-                    applyVisibility(habitRow, match);
-                    if (match) habitsVisible = true;
+                    applyVisibility(habitRow, match, 'flex');
+                    if(match) habitsVisible = true;
                 });
-                applyVisibility(habitTrackerWidget, habitsVisible);
-                if (habitsVisible) anyResultsFound = true;
-
-                // For Pomodoro widget, if it's not explicitly searched, it should be hidden
-                const pomodoroWidget = document.getElementById('pomodoroWidget');
-                if (pomodoroWidget) {
-                    const pomodoroTitle = pomodoroWidget.querySelector('h2')?.textContent.toLowerCase();
-                    const pomodoroMatches = pomodoroTitle && pomodoroTitle.includes(query);
-                    applyVisibility(pomodoroWidget, pomodoroMatches);
-                    if (pomodoroMatches) anyResultsFound = true;
-                }
-
+                applyVisibility(habitTrackerWidget, habitsVisible, 'flex');
+                if(habitsVisible) anyResultsFound = true;
+                
+                 ['calendarWidget', 'pomodoroWidget'].forEach(id => {
+                      const widget = document.getElementById(id);
+                      if(widget) {
+                         const title = widget.querySelector('h2')?.textContent.toLowerCase() || '';
+                         const match = title.includes(query);
+                         applyVisibility(widget, match, 'flex');
+                         if (match) anyResultsFound = true;
+                      }
+                 });
 
                 if (noResultsEl) {
                     noResultsEl.style.display = anyResultsFound ? 'none' : 'block';
                 }
             }
 
-            // ===== HABIT TRACKER LOGIC =====
-            const habitTableBody = document.getElementById('habitTableBody');
+            const habitListModern = document.getElementById('habitListModern');
             const newHabitInput = document.getElementById('newHabitInput');
             const addHabitBtn = document.getElementById('addHabitBtn');
-            const openHabitTrackerBtn = document.getElementById('openHabitTrackerBtn'); // Sidebar button
-            const habitTrackerWidget = document.getElementById('habitTrackerWidget'); // The widget itself
+            const openHabitTrackerBtn = document.getElementById('openHabitTrackerBtn');
+            const habitTrackerWidget = document.getElementById('habitTrackerWidget');
 
             function renderHabitTracker() {
-                habitTableBody.innerHTML = '';
+                if (!habitListModern) return;
+                habitListModern.innerHTML = '';
                 const today = new Date();
-                const currentDayIndex = today.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+                const currentDayIndex = today.getDay();
+                const dayInitials = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
                 habitsData.forEach(habit => {
-                    const row = document.createElement('tr');
+                    const row = document.createElement('div');
+                    row.className = 'habit-row';
                     row.dataset.habitId = habit.id;
 
-                    const habitNameCell = document.createElement('td');
-                    habitNameCell.classList.add('habit-name-cell');
-                    habitNameCell.innerHTML = `<span class="habit-name-text" contenteditable="true">${habit.name}</span>`;
+                    const details = document.createElement('div');
+                    details.className = 'habit-details';
+                    details.innerHTML = `<span class="habit-name-text" contenteditable="true">${habit.name}</span> <button class="delete-habit-btn" title="Delete Habit">×</button>`;
                     
-                    // Add blur listener for editing habit name
-                    habitNameCell.querySelector('.habit-name-text').addEventListener('blur', (e) => {
-                        const updatedName = e.target.textContent.trim();
-                        const habitToUpdate = habitsData.find(h => h.id === habit.id);
-                        if (habitToUpdate && updatedName !== '') {
-                            habitToUpdate.name = updatedName;
-                            saveData();
-                        } else if (updatedName === '') {
-                            e.target.textContent = habit.name; // Revert if empty
-                        }
-                    });
-                    // Prevent new line on Enter key
-                    habitNameCell.querySelector('.habit-name-text').addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            e.target.blur();
-                        }
-                    });
-
-                    row.appendChild(habitNameCell);
+                    const weekTracker = document.createElement('div');
+                    weekTracker.className = 'habit-week-tracker';
 
                     for (let i = 0; i < 7; i++) {
-                        const dayCell = document.createElement('td');
-                        dayCell.classList.add('daily-check');
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.dataset.dayIndex = i;
-                        checkbox.checked = habit.dailyCompletion[i];
-                        
-                        // Disable checkboxes for future days
-                        if (i > currentDayIndex) {
-                            checkbox.disabled = true;
-                        }
+                        const checkboxId = `habit-${habit.id}-day-${i}`;
+                        const isChecked = habit.dailyCompletion[i];
+                        const isDisabled = i > currentDayIndex;
 
-                        checkbox.addEventListener('change', (e) => {
-                            toggleHabitCompletion(habit.id, i, e.target.checked);
-                        });
-                        dayCell.appendChild(checkbox);
-                        row.appendChild(dayCell);
+                        const dayCheck = document.createElement('div');
+                        dayCheck.className = 'day-check-container';
+                        dayCheck.innerHTML = `
+                            <input type="checkbox" id="${checkboxId}" data-day-index="${i}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+                            <label for="${checkboxId}" class="day-label ${isDisabled ? 'disabled' : ''}">${dayInitials[i]}</label>
+                        `;
+                        weekTracker.appendChild(dayCheck);
                     }
 
-                    const deleteCell = document.createElement('td');
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.classList.add('delete-habit-btn');
-                    deleteBtn.textContent = '×';
-                    deleteBtn.title = 'Delete Habit';
-                    deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
-                    deleteCell.appendChild(deleteBtn);
-                    row.appendChild(deleteCell);
+                    row.appendChild(details);
+                    row.appendChild(weekTracker);
+                    habitListModern.appendChild(row);
 
-                    habitTableBody.appendChild(row);
+                    const nameSpan = row.querySelector('.habit-name-text');
+                    nameSpan.addEventListener('blur', (e) => {
+                        const updatedName = e.target.textContent.trim();
+                        const habitToUpdate = habitsData.find(h => h.id === habit.id);
+                        if (habitToUpdate && updatedName) habitToUpdate.name = updatedName;
+                        else e.target.textContent = habitToUpdate.name;
+                        saveData();
+                    });
+                    nameSpan.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+                    });
+
+                    row.querySelector('.delete-habit-btn').addEventListener('click', () => deleteHabit(habit.id));
+                    
+                    row.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.addEventListener('change', (e) => {
+                             toggleHabitCompletion(habit.id, parseInt(e.target.dataset.dayIndex), e.target.checked);
+                        });
+                    });
                 });
             }
 
@@ -2789,11 +3459,11 @@
                     const newHabit = {
                         id: `habit-${Date.now()}`,
                         name: habitName,
-                        dailyCompletion: Array(7).fill(false) // 0:Sun, 1:Mon, ..., 6:Sat
+                        dailyCompletion: Array(7).fill(false)
                     };
                     habitsData.push(newHabit);
                     newHabitInput.value = '';
-                    saveData(); // Save and re-render
+                    saveData();
                     showToast(`Habit "${habitName}" added!`, 'info');
                 } else {
                     showToast("Please enter a habit name.", "info");
@@ -2804,242 +3474,41 @@
                 const habit = habitsData.find(h => h.id === habitId);
                 if (habit) {
                     habit.dailyCompletion[dayIndex] = isChecked;
-                    saveData(); // Save and re-render
+                    saveData();
                 }
             }
 
             function deleteHabit(habitId) {
                 habitsData = habitsData.filter(h => h.id !== habitId);
-                saveData(); // Save and re-render
+                saveData();
                 showToast("Habit deleted!", "info");
             }
 
-            // Function to reset daily completion for a new day
             function resetDailyHabits() {
                 const lastResetDate = localStorage.getItem('lastHabitResetDate');
-                const today = new Date().toLocaleDateString('en-CA');
-
-                if (lastResetDate !== today) {
+                const todayStr = new Date().toLocaleDateString('en-CA');
+                
+                const today = new Date();
+                if (today.getDay() === 0 && lastResetDate !== todayStr) {
+                    let needsSave = false;
                     habitsData.forEach(habit => {
-                        // Reset all checkboxes for the new day
-                        habit.dailyCompletion = Array(7).fill(false); 
+                        habit.dailyCompletion = Array(7).fill(false);
+                        needsSave = true;
                     });
-                    localStorage.setItem('lastHabitResetDate', today);
-                    saveData(); // Save and re-render after reset
-                    showToast("Habit checkboxes reset for the new day!", "info");
+                    
+                    if (needsSave) {
+                        localStorage.setItem('lastHabitResetDate', todayStr);
+                        saveData();
+                        showToast("Habits reset for the new week!", "info");
+                    }
                 }
             }
 
-            // Toggle visibility of Habit Tracker widget
             openHabitTrackerBtn.addEventListener('click', () => {
-                if (habitTrackerWidget.style.display === 'none') {
-                    habitTrackerWidget.style.display = 'flex';
-                    habitTrackerWidget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    habitTrackerWidget.style.display = 'none';
-                }
-            });
-
-            // ===== POMODORO TIMER LOGIC =====
-            let pomodoroInterval;
-            let isRunning = false;
-            let defaultFocusMinutes = 25;
-            let defaultBreakMinutes = 5;
-            let totalSessionLimit = 4;
-            let isBreak = false;
-            let timeLeft = defaultFocusMinutes * 60;
-            let sessionCount = 1;
-            
-            const pomodoroWidget = document.getElementById("pomodoroWidget");
-            const openPomodoroBtn = document.getElementById("openPomodoroBtn");
-            const startBtn = document.getElementById("startPomodoroBtn");
-            const pauseBtn = document.getElementById("pausePomodoroBtn");
-            const resetBtn = document.getElementById("resetPomodoroBtn");
-            const display = document.getElementById("pomodoroDisplay");
-            const label = document.getElementById("pomodoroLabel");
-            const customMinutesInput = document.getElementById("customMinutes");
-            const breakMinutesInput = document.getElementById("breakMinutes");
-            const sessionCounter = document.getElementById("sessionCounter");
-            const totalSessionsInput = document.getElementById("totalSessions");
-            const alertSound = document.getElementById("alertSound");
-            const pomodoroSettingsBtn = document.getElementById("pomodoroSettingsBtn");
-
-            function savePomodoroState() {
-                localStorage.setItem('pomodoroFocusMinutes', defaultFocusMinutes.toString());
-                localStorage.setItem('pomodoroBreakMinutes', defaultBreakMinutes.toString());
-                localStorage.setItem('pomodoroTotalSessions', totalSessionLimit.toString());
-                localStorage.setItem('pomodoroIsBreak', isBreak.toString());
-                localStorage.setItem('pomodoroTimeLeft', timeLeft.toString());
-                localStorage.setItem('pomodoroSessionCount', sessionCount.toString());
-                localStorage.setItem('pomodoroIsRunning', isRunning.toString());
-            }
-
-            function loadPomodoroState() {
-                defaultFocusMinutes = parseInt(localStorage.getItem('pomodoroFocusMinutes') || '25');
-                defaultBreakMinutes = parseInt(localStorage.getItem('pomodoroBreakMinutes') || '5');
-                totalSessionLimit = parseInt(localStorage.getItem('pomodoroTotalSessions') || '4');
-                isBreak = localStorage.getItem('pomodoroIsBreak') === 'true';
-                timeLeft = parseInt(localStorage.getItem('pomodoroTimeLeft') || (defaultFocusMinutes * 60).toString());
-                sessionCount = parseInt(localStorage.getItem('pomodoroSessionCount') || '1');
-                isRunning = localStorage.getItem('pomodoroIsRunning') === 'true';
-
-                customMinutesInput.value = defaultFocusMinutes;
-                breakMinutesInput.value = defaultBreakMinutes;
-                totalSessionsInput.value = totalSessionLimit;
-
-                label.textContent = isBreak ? "Break" : "Focus";
-                updateDisplay();
-                updateSession();
-
-                if (isRunning) {
-                    startTimer(); // Restart timer if it was running
-                } else {
-                    startBtn.style.display = "inline-flex";
-                    pauseBtn.style.display = "none";
-                }
-            }
-            
-            customMinutesInput.addEventListener("change", () => {
-                defaultFocusMinutes = parseInt(customMinutesInput.value) || 25;
-                if (!isBreak) resetTimer();
-                savePomodoroState();
+                const tracker = document.getElementById('habitTrackerWidget');
+                tracker.style.display = (tracker.style.display === 'none' || !tracker.style.display) ? 'flex' : 'none';
             });
             
-            breakMinutesInput.addEventListener("change", () => {
-                defaultBreakMinutes = parseInt(breakMinutesInput.value) || 5;
-                if (isBreak) resetTimer();
-                savePomodoroState();
-            });
-            
-            totalSessionsInput.addEventListener("change", () => {
-                totalSessionLimit = parseInt(totalSessionsInput.value) || 4;
-                if (sessionCount > totalSessionLimit) sessionCount = totalSessionLimit;
-                updateSession();
-                savePomodoroState();
-            });
-            
-            function updateDisplay() {
-                const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
-                const seconds = String(timeLeft % 60).padStart(2, "0");
-                display.textContent = `${minutes}:${seconds}`;
-            }
-            
-            function updateSession() {
-                sessionCounter.textContent = `${sessionCount} / ${totalSessionLimit}`;
-            }
-            
-            function playSound() {
-                if (alertSound) {
-                    alertSound.currentTime = 0;
-                    alertSound.play();
-                }
-            }
-            
-            function showCustomAlert(message) {
-                showToast(message, 'info');
-            }
-
-            function startTimer() {
-                if (!isRunning && sessionCount <= totalSessionLimit) {
-                    isRunning = true;
-                    pomodoroInterval = setInterval(() => {
-                        if (timeLeft > 0) {
-                            timeLeft--;
-                            updateDisplay();
-                            savePomodoroState();
-                        } else {
-                            clearInterval(pomodoroInterval);
-                            isRunning = false;
-                            playSound();
-                            if (!isBreak && sessionCount >= totalSessionLimit) {
-                                showCustomAlert("All Pomodoro sessions complete!");
-                                resetTimerFull();
-                                return;
-                            }
-                            isBreak = !isBreak;
-                            if (isBreak) {
-                                showCustomAlert("Break time! Relax.");
-                                label.textContent = "Break";
-                                timeLeft = defaultBreakMinutes * 60;
-                            } else {
-                                showCustomAlert("Back to work!");
-                                sessionCount++;
-                                updateSession();
-                                label.textContent = "Focus";
-                                timeLeft = defaultFocusMinutes * 60;
-                            }
-                            updateDisplay();
-                            savePomodoroState();
-                            startTimer();
-                        }
-                    }, 1000);
-                    startBtn.style.display = "none";
-                    pauseBtn.style.display = "inline-flex";
-                }
-            }
-            
-            function pauseTimer() {
-                clearInterval(pomodoroInterval);
-                isRunning = false;
-                startBtn.style.display = "inline-flex";
-                pauseBtn.style.display = "none";
-                savePomodoroState();
-            }
-            
-            function resetTimer() {
-                clearInterval(pomodoroInterval);
-                timeLeft = (isBreak ? defaultBreakMinutes : defaultFocusMinutes) * 60;
-                label.textContent = isBreak ? "Break" : "Focus";
-                isRunning = false;
-                updateDisplay();
-                startBtn.style.display = "inline-flex";
-                pauseBtn.style.display = "none";
-                savePomodoroState();
-            }
-
-            function resetTimerFull() {
-                clearInterval(pomodoroInterval);
-                isRunning = false;
-                isBreak = false;
-                sessionCount = 1;
-                timeLeft = defaultFocusMinutes * 60;
-                label.textContent = "Focus";
-                updateDisplay();
-                updateSession();
-                startBtn.style.display = "inline-flex";
-                pauseBtn.style.display = "none";
-                savePomodoroState(); // Save initial state
-            }
-            
-            startBtn.addEventListener("click", startTimer);
-            pauseBtn.addEventListener("click", pauseTimer);
-            resetBtn.addEventListener("click", resetTimerFull);
-
-            if (pomodoroSettingsBtn) {
-                pomodoroSettingsBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    pomodoroWidget.classList.toggle("settings-open");
-                });
-            }
-
-            document.addEventListener('click', function(event) {
-                if (pomodoroWidget && !pomodoroWidget.contains(event.target) && pomodoroWidget.classList.contains('settings-open')) {
-                    pomodoroWidget.classList.remove('settings-open');
-                }
-            });
-
-
-            // Toggle visibility of Pomodoro widget
-            openPomodoroBtn.addEventListener("click", () => {
-                if (pomodoroWidget.style.display === "none") {
-                    pomodoroWidget.style.display = "flex";
-                    pomodoroWidget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    pomodoroWidget.style.display = "none";
-                }
-            });
-
-            // ===== EVENT LISTENERS & INITIALIZATION =====
             document.getElementById('sidebarStreakBtn')?.addEventListener('click', showStreakModal);
             
             const searchInput = document.getElementById('searchInput');
@@ -3047,12 +3516,9 @@
             searchInput?.addEventListener('input', () => performSearch(searchInput.value));
             searchButton?.addEventListener('click', () => performSearch(searchInput.value));
 
-            // Habit Tracker Event Listeners
             addHabitBtn.addEventListener('click', addHabit);
             newHabitInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    addHabit();
-                }
+                if (e.key === 'Enter') addHabit();
             });
 
             // --- INITIALIZATION SEQUENCE ---
@@ -3060,11 +3526,14 @@
             fetchWeather();
             setInterval(checkRemindersForNotification, 60000);
             checkRemindersForNotification();
-            loadData(); // Load all data including habits
+            loadData();
             initializeDragAndDrop();
             loadAvatar();
-            resetDailyHabits(); // Check and reset habits at the start of a new day
-            loadPomodoroState(); // Load Pomodoro state on page load
+            resetDailyHabits();
+            loadPomodoroState();
+            // Feature setups
+            setupNotepad();
+            setupFocusStatsModal();
         });
     </script>
 </body>
