@@ -353,28 +353,6 @@
             filter: saturate(1.5);
         }
         
-        .sidebar-weather {
-            background: var(--button-bg);
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 15px;
-        }
-        .sidebar-weather .weather-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .sidebar-weather #weatherIcon { font-size: 2.2em; }
-        .sidebar-weather .weather-details { display: flex; flex-direction: column; }
-        .sidebar-weather #weatherTemp { font-size: 1.3em; font-weight: 600; }
-        .sidebar-weather #weatherCity { font-size: 0.8em; color: var(--text-light); }
-        .sidebar-weather #weatherDesc {
-            font-size: 0.8em;
-            margin-top: 8px;
-            text-align: center;
-            color: var(--text-light);
-        }
-        
         /* Main Content Area */
         .main-content {
             padding: 20px;
@@ -1245,153 +1223,6 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Habit Tracker specific styles */
-        .habit-tracker-widget {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .habit-tracker-widget .add-habit-form {
-            display: flex;
-            gap: 10px;
-        }
-        .habit-tracker-widget #newHabitInput {
-            flex-grow: 1;
-            padding: 10px 15px;
-            border: 1px solid var(--widget-border-color);
-            border-radius: 10px;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            font-size: 1em;
-            outline: none;
-            transition: box-shadow 0.2s;
-            font-family: 'Poppins', sans-serif;
-        }
-        .habit-tracker-widget #newHabitInput:focus {
-            box-shadow: 0 0 0 3px var(--accent-color-translucent);
-        }
-        .habit-tracker-widget #addHabitBtn {
-            padding: 10px 20px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .habit-tracker-widget #addHabitBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--new-todo-btn-hover-shadow);
-        }
-        #habitListModern {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .habit-row {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: var(--button-bg);
-            border-radius: 12px;
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .habit-row:hover {
-            border-color: var(--widget-border-color);
-            transform: translateX(3px);
-        }
-        .habit-details {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-right: 15px;
-        }
-        .habit-name-text {
-            color: var(--text-color);
-            font-weight: 500;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-        .habit-name-text:focus {
-            outline: 2px solid var(--accent-color);
-            background-color: var(--accent-color-translucent);
-        }
-        .delete-habit-btn {
-            background: none; border: none;
-            color: var(--danger-color);
-            font-size: 1.4em;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.2s;
-        }
-        .habit-row:hover .delete-habit-btn {
-            opacity: 0.7;
-            transform: scale(1);
-        }
-        .delete-habit-btn:hover {
-            opacity: 1;
-            background-color: var(--danger-color);
-            color: white;
-            transform: scale(1.1);
-        }
-        .habit-week-tracker {
-            display: flex;
-            gap: 6px;
-        }
-        .habit-week-tracker input[type="checkbox"] {
-            display: none;
-        }
-        .day-label {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            border: 2px solid var(--widget-border-color);
-            color: var(--text-light);
-            background-color: transparent;
-            transition: all 0.2s ease;
-        }
-        .day-label:hover {
-            background-color: var(--accent-color-translucent);
-            border-color: var(--accent-color);
-        }
-        .habit-week-tracker input[type="checkbox"]:checked + .day-label {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            color: white;
-            transform: scale(1.1);
-        }
-        .day-label.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: transparent;
-        }
-        .day-label.disabled:hover {
-            transform: none;
-            border-color: var(--widget-border-color);
-        }
-        .habit-table-container { display: none; }
-
         /* NEW/IMPROVED: Notepad Modal Styles */
         #notepadModal .modal-content {
             max-width: 900px;
@@ -1701,7 +1532,7 @@
             <a href="resources.html" id="navResources">Resources</a>
         </nav>
         <div class="search-bar">
-            <input type="search" id="searchInput" placeholder="Search tasks & reminders...">
+            <input type="search" id="searchInput" placeholder="Search tasks">
             <button id="searchButton">🔍</button>
         </div>
     </header>
@@ -1710,9 +1541,6 @@
         <button id="newPageBtn">+ Add New List</button>
         <button class="sidebar-tab-button" id="openNotepadBtn">
             <span class="tab-icon">📝</span> Notepad
-        </button>
-        <button class="sidebar-tab-button" id="openFocusStatsBtn">
-            <span class="tab-icon">📊</span> Focus Stats
         </button>
         <button class="sidebar-tab-button" id="viewMoodLogTabBtn">
             <span class="tab-icon">📜</span> View Full Mood Log
@@ -1724,19 +1552,12 @@
             <span class="mood-emoji-trigger" data-mood="excited" data-emoji="🥳" title="Log Excited Mood">🥳</span>
             <span class="mood-emoji-trigger" data-mood="stressed" data-emoji="😫" title="Log Stressed Mood">😫</span>
         </div>
-        <div class="sidebar-weather">
-            <div class="weather-header">
-                <div id="weatherIcon">☀️</div>
-                <div class="weather-details">
-                    <div id="weatherTemp">75°F</div>
-                    <div id="weatherCity">Kissimmee, FL</div>
-                </div>
-            </div>
-            <p id="weatherDesc">Sunny skies today.</p>
-        </div>
         
         <button class="sidebar-tab-button" id="sidebarStreakBtn">
             <span class="tab-icon">🔥</span> View Streak
+        </button>
+        <button class="sidebar-tab-button" id="openFocusStatsBtn">
+            <span class="tab-icon">📊</span> Focus Stats
         </button>
         <button class="sidebar-tab-button" id="themeToggleBtn">
             <span id="themeIcon" class="tab-icon">☀️</span>
@@ -1744,9 +1565,6 @@
         </button>
         <button class="sidebar-tab-button" id="openPomodoroBtn">
             <span class="tab-icon">🍅</span> Pomodoro Timer
-        </button>
-        <button class="sidebar-tab-button" id="openHabitTrackerBtn">
-            <span class="tab-icon">✅</span> Habit Tracker
         </button>
     </aside>
 
@@ -1793,7 +1611,7 @@
                         <button id="startPomodoroBtn" title="Start"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></button>
                         <button id="pausePomodoroBtn" title="Pause" style="display:none;"><svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button>
                         <button id="resetPomodoroBtn" title="Reset"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"></path></svg></button>
-                        <button id="pomodoroSettingsBtn" title="Settings"><svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg></button>
+                        <button id="pomodoroSettingsBtn" title="Settings"><svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg></button>
                     </div>
                      <div class="pomodoro-settings">
                          <div>
@@ -1811,21 +1629,6 @@
                      </div>
                 </div>
                 <audio id="alertSound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
-            </section>
-            
-            <section class="widget habit-tracker-widget" id="habitTrackerWidget">
-                <h2 class="drag-handle">Habit Tracker</h2>
-                <div class="add-habit-form">
-                    <input type="text" id="newHabitInput" placeholder="e.g., Drink 8 glasses of water">
-                    <button id="addHabitBtn">Add Habit</button>
-                </div>
-                <div id="habitListModern"></div>
-                <div class="habit-table-container">
-                    <table class="habit-table">
-                        <thead><tr id="habitTableHeader"></tr></thead>
-                        <tbody id="habitTableBody"></tbody>
-                    </table>
-                </div>
             </section>
         </div>
         
@@ -1972,7 +1775,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             let todoCardsData = [];
             let reminders = [];
-            let habitsData = [];
             let typingIntervalId = null;
 
             // ===== HELPER: Get Date String =====
@@ -2234,9 +2036,7 @@
             function saveData() {
                 localStorage.setItem('todoCards', JSON.stringify(todoCardsData));
                 localStorage.setItem('reminders', JSON.stringify(reminders));
-                localStorage.setItem('habits', JSON.stringify(habitsData));
                 renderCalendarWidget();
-                renderHabitTracker();
             }
 
             function toggleReminderComplete(reminderId) {
@@ -2590,16 +2390,8 @@
             }
             
             function fetchWeather() {
-                const weatherData = {
-                    temp: "75°F",
-                    city: "Kissimmee, FL",
-                    desc: "Sunny skies today.",
-                    icon: "☀️"
-                };
-                document.getElementById('weatherTemp').textContent = weatherData.temp;
-                document.getElementById('weatherCity').textContent = weatherData.city;
-                document.getElementById('weatherDesc').textContent = weatherData.desc;
-                document.getElementById('weatherIcon').textContent = weatherData.icon;
+                // This function is kept in case weather functionality is added back later.
+                // It currently does nothing since the elements are removed.
             }
 
             const avatarImage = document.getElementById('avatarImage');
@@ -2674,13 +2466,10 @@
                 if (storedTodoCards) todoCardsData = JSON.parse(storedTodoCards);
                 const storedReminders = localStorage.getItem('reminders');
                 if (storedReminders) reminders = JSON.parse(storedReminders);
-                const storedHabits = localStorage.getItem('habits');
-                if (storedHabits) habitsData = JSON.parse(storedHabits);
-
+                
                 renderTodoCards();
                 renderReminders();
                 renderCalendarWidget();
-                renderHabitTracker();
             }
 
             function renderTodoCards() {
@@ -3330,7 +3119,7 @@
 
                 if (query === '') {
                     document.querySelectorAll('.widget').forEach(el => applyVisibility(el, true));
-                    document.querySelectorAll('#remindersList li, .task-list li, .habit-row').forEach(el => applyVisibility(el, true, 'flex'));
+                    document.querySelectorAll('#remindersList li, .task-list li').forEach(el => applyVisibility(el, true, 'flex'));
                     if (noResultsEl) noResultsEl.style.display = 'none';
                     return;
                 }
@@ -3362,17 +3151,6 @@
                     if (showCard) anyResultsFound = true;
                 });
                 
-                const habitTrackerWidget = document.getElementById('habitTrackerWidget');
-                let habitsVisible = false;
-                habitTrackerWidget.querySelectorAll('.habit-row').forEach(habitRow => {
-                    const habitName = habitRow.querySelector('.habit-name-text')?.textContent.toLowerCase();
-                    const match = habitName && habitName.includes(query);
-                    applyVisibility(habitRow, match, 'flex');
-                    if(match) habitsVisible = true;
-                });
-                applyVisibility(habitTrackerWidget, habitsVisible, 'flex');
-                if(habitsVisible) anyResultsFound = true;
-                
                  ['calendarWidget', 'pomodoroWidget'].forEach(id => {
                       const widget = document.getElementById(id);
                       if(widget) {
@@ -3387,127 +3165,6 @@
                     noResultsEl.style.display = anyResultsFound ? 'none' : 'block';
                 }
             }
-
-            const habitListModern = document.getElementById('habitListModern');
-            const newHabitInput = document.getElementById('newHabitInput');
-            const addHabitBtn = document.getElementById('addHabitBtn');
-            const openHabitTrackerBtn = document.getElementById('openHabitTrackerBtn');
-            const habitTrackerWidget = document.getElementById('habitTrackerWidget');
-
-            function renderHabitTracker() {
-                if (!habitListModern) return;
-                habitListModern.innerHTML = '';
-                const today = new Date();
-                const currentDayIndex = today.getDay();
-                const dayInitials = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-                habitsData.forEach(habit => {
-                    const row = document.createElement('div');
-                    row.className = 'habit-row';
-                    row.dataset.habitId = habit.id;
-
-                    const details = document.createElement('div');
-                    details.className = 'habit-details';
-                    details.innerHTML = `<span class="habit-name-text" contenteditable="true">${habit.name}</span> <button class="delete-habit-btn" title="Delete Habit">×</button>`;
-                    
-                    const weekTracker = document.createElement('div');
-                    weekTracker.className = 'habit-week-tracker';
-
-                    for (let i = 0; i < 7; i++) {
-                        const checkboxId = `habit-${habit.id}-day-${i}`;
-                        const isChecked = habit.dailyCompletion[i];
-                        const isDisabled = i > currentDayIndex;
-
-                        const dayCheck = document.createElement('div');
-                        dayCheck.className = 'day-check-container';
-                        dayCheck.innerHTML = `
-                            <input type="checkbox" id="${checkboxId}" data-day-index="${i}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-                            <label for="${checkboxId}" class="day-label ${isDisabled ? 'disabled' : ''}">${dayInitials[i]}</label>
-                        `;
-                        weekTracker.appendChild(dayCheck);
-                    }
-
-                    row.appendChild(details);
-                    row.appendChild(weekTracker);
-                    habitListModern.appendChild(row);
-
-                    const nameSpan = row.querySelector('.habit-name-text');
-                    nameSpan.addEventListener('blur', (e) => {
-                        const updatedName = e.target.textContent.trim();
-                        const habitToUpdate = habitsData.find(h => h.id === habit.id);
-                        if (habitToUpdate && updatedName) habitToUpdate.name = updatedName;
-                        else e.target.textContent = habitToUpdate.name;
-                        saveData();
-                    });
-                    nameSpan.addEventListener('keydown', e => {
-                        if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
-                    });
-
-                    row.querySelector('.delete-habit-btn').addEventListener('click', () => deleteHabit(habit.id));
-                    
-                    row.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                        checkbox.addEventListener('change', (e) => {
-                             toggleHabitCompletion(habit.id, parseInt(e.target.dataset.dayIndex), e.target.checked);
-                        });
-                    });
-                });
-            }
-
-            function addHabit() {
-                const habitName = newHabitInput.value.trim();
-                if (habitName) {
-                    const newHabit = {
-                        id: `habit-${Date.now()}`,
-                        name: habitName,
-                        dailyCompletion: Array(7).fill(false)
-                    };
-                    habitsData.push(newHabit);
-                    newHabitInput.value = '';
-                    saveData();
-                    showToast(`Habit "${habitName}" added!`, 'info');
-                } else {
-                    showToast("Please enter a habit name.", "info");
-                }
-            }
-
-            function toggleHabitCompletion(habitId, dayIndex, isChecked) {
-                const habit = habitsData.find(h => h.id === habitId);
-                if (habit) {
-                    habit.dailyCompletion[dayIndex] = isChecked;
-                    saveData();
-                }
-            }
-
-            function deleteHabit(habitId) {
-                habitsData = habitsData.filter(h => h.id !== habitId);
-                saveData();
-                showToast("Habit deleted!", "info");
-            }
-
-            function resetDailyHabits() {
-                const lastResetDate = localStorage.getItem('lastHabitResetDate');
-                const todayStr = new Date().toLocaleDateString('en-CA');
-                
-                const today = new Date();
-                if (today.getDay() === 0 && lastResetDate !== todayStr) {
-                    let needsSave = false;
-                    habitsData.forEach(habit => {
-                        habit.dailyCompletion = Array(7).fill(false);
-                        needsSave = true;
-                    });
-                    
-                    if (needsSave) {
-                        localStorage.setItem('lastHabitResetDate', todayStr);
-                        saveData();
-                        showToast("Habits reset for the new week!", "info");
-                    }
-                }
-            }
-
-            openHabitTrackerBtn.addEventListener('click', () => {
-                const tracker = document.getElementById('habitTrackerWidget');
-                tracker.style.display = (tracker.style.display === 'none' || !tracker.style.display) ? 'flex' : 'none';
-            });
             
             document.getElementById('sidebarStreakBtn')?.addEventListener('click', showStreakModal);
             
@@ -3515,11 +3172,6 @@
             const searchButton = document.getElementById('searchButton');
             searchInput?.addEventListener('input', () => performSearch(searchInput.value));
             searchButton?.addEventListener('click', () => performSearch(searchInput.value));
-
-            addHabitBtn.addEventListener('click', addHabit);
-            newHabitInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') addHabit();
-            });
 
             // --- INITIALIZATION SEQUENCE ---
             updateStreak();
@@ -3529,7 +3181,6 @@
             loadData();
             initializeDragAndDrop();
             loadAvatar();
-            resetDailyHabits();
             loadPomodoroState();
             // Feature setups
             setupNotepad();
