@@ -113,7 +113,7 @@
             font-family: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
             background-image: var(--bg-image);
             color: var(--text-color);
-            transition: background-image 0.5s, color 0.5s;
+            transition: background-image 0.5s, color 0.5s, padding-left 0.4s ease;
             background-attachment: fixed;
             padding-top: 80px;
             padding-left: 240px;
@@ -147,6 +147,7 @@
             box-shadow: var(--header-shadow);
             border-radius: 16px;
             border: 1px solid var(--widget-border-color);
+            transition: left 0.4s ease;
         }
 
         .logo {
@@ -276,6 +277,52 @@
             box-shadow: var(--sidebar-shadow);
             border-radius: 16px;
             overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        #sidebarToggleBtn {
+            position: fixed;
+            top: 25px;
+            left: calc(220px - 35px - 15px); /* Sidebar width - btn width - desired gap */
+            z-index: 1002;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 1px solid var(--widget-border-color);
+            background: var(--button-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: left 0.4s ease, background-color 0.3s, transform 0.3s;
+        }
+        #sidebarToggleBtn:hover {
+            background-color: var(--accent-color-translucent);
+            transform: scale(1.1);
+        }
+        #sidebarToggleBtn svg {
+            transition: transform 0.4s ease;
+        }
+        
+        /* Collapsed Sidebar State */
+        body.sidebar-collapsed {
+            padding-left: 40px;
+        }
+        body.sidebar-collapsed .left-sidebar {
+            transform: translateX(calc(-100% - 20px)); /* Hide completely */
+            box-shadow: none;
+        }
+        body.sidebar-collapsed header {
+            left: 40px;
+        }
+        body.sidebar-collapsed #sidebarToggleBtn {
+            left: 15px;
+        }
+         body.sidebar-collapsed #sidebarToggleBtn svg {
+            transform: rotate(180deg);
         }
 
         #newPageBtn {
@@ -367,12 +414,6 @@
             justify-content: center;
             align-items: center;
             gap: 20px;
-            background: var(--widget-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--widget-border-color);
-            box-shadow: var(--box-shadow);
-            border-radius: 16px;
         }
         #motivationalQuoteP {
             font-style: italic;
@@ -409,14 +450,8 @@
         .widgets-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 0;
-            background: var(--widget-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid var(--widget-border-color);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
+            gap: 20px; /* Changed from 0 */
+            background: transparent; /* Changed from var(--widget-bg) */
         }
         
         .widget {
@@ -424,14 +459,17 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.2s ease;
+            /* Applying glass effect directly to widgets */
+            background: var(--widget-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--widget-border-color);
+            box-shadow: var(--box-shadow);
+            border-radius: 16px; /* Added rounded corners */
         }
         .widget:hover {
             transform: translateY(-2px) scale(1.01);
             z-index: 10;
-        }
-        .widgets-container > .widget {
-            border-bottom: 1px solid var(--widget-border-color);
-            border-right: 1px solid var(--widget-border-color);
         }
         
         /* Drag and Drop Styles */
@@ -1503,7 +1541,9 @@
         @media (max-width: 992px) {
             body { padding-left: 10px; padding-right: 10px; padding-top: 80px; }
             header { left: 10px; }
-            .left-sidebar { display: none; }
+            .left-sidebar, #sidebarToggleBtn { display: none; } /* Hide sidebar and its toggle on smaller screens */
+            /* When sidebar is hidden by media query, remove the specific collapsed padding */
+            body.sidebar-collapsed { padding-left: 10px; }
             .widgets-container { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
@@ -1568,8 +1608,15 @@
         </button>
     </aside>
 
+    <!-- MOVED: Sidebar Toggle Button is now outside the sidebar -->
+    <button id="sidebarToggleBtn" title="Collapse Sidebar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
     <main class="main-content">
-        <section class="motivational-quote-banner">
+        <section class="motivational-quote-banner glass">
             <p id="motivationalQuoteP">"Loading motivational quote..."</p>
         </section>
         
@@ -2473,7 +2520,10 @@
             }
 
             function renderTodoCards() {
+                // Clear only todo-cards to preserve other widgets
                 document.querySelectorAll('.todo-card').forEach(card => card.remove());
+                const firstWidget = widgetsContainer.firstChild; // Get reference to insert before if needed
+            
                 todoCardsData.forEach(cardData => {
                     const cardElement = document.createElement('section');
                     cardElement.classList.add('widget', 'todo-card');
@@ -2489,7 +2539,12 @@
                             <div class="progress-bar-container"><div class="progress-bar"></div></div>
                             <p class="progress-label">0% Complete</p>
                         </div>`;
-                    widgetsContainer.appendChild(cardElement);
+                    // Insert before the first widget or at the end
+                    if(firstWidget) {
+                        widgetsContainer.insertBefore(cardElement, firstWidget);
+                    } else {
+                        widgetsContainer.appendChild(cardElement);
+                    }
 
                     cardData.tasks.forEach(task => addTaskToTodoCard(cardElement, task.text, task.completed, task.dueDate, task.id));
                     updateProgressForCard(cardElement);
@@ -3166,6 +3221,21 @@
                 }
             }
             
+            // --- Collapsible Sidebar Logic ---
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            sidebarToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('sidebar-collapsed');
+                const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+                localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+            
+            function setInitialSidebarState() {
+                if (localStorage.getItem('sidebarState') === 'collapsed') {
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            }
+
+
             document.getElementById('sidebarStreakBtn')?.addEventListener('click', showStreakModal);
             
             const searchInput = document.getElementById('searchInput');
@@ -3174,6 +3244,7 @@
             searchButton?.addEventListener('click', () => performSearch(searchInput.value));
 
             // --- INITIALIZATION SEQUENCE ---
+            setInitialSidebarState();
             updateStreak();
             fetchWeather();
             setInterval(checkRemindersForNotification, 60000);
