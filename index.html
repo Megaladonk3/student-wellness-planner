@@ -3231,12 +3231,6 @@
                 localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
             });
             
-            function setInitialSidebarState() {
-                if (localStorage.getItem('sidebarState') === 'collapsed') {
-                    document.body.classList.add('sidebar-collapsed');
-                }
-            }
-
 
             document.getElementById('sidebarStreakBtn')?.addEventListener('click', showStreakModal);
             
@@ -3246,7 +3240,6 @@
             searchButton?.addEventListener('click', () => performSearch(searchInput.value));
 
             // --- INITIALIZATION SEQUENCE ---
-            setInitialSidebarState();
             updateStreak();
             fetchWeather();
             setInterval(checkRemindersForNotification, 60000);
