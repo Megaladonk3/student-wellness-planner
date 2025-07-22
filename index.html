@@ -131,11 +131,11 @@
         
         /* Header */
         header {
-            padding: 0 10px 0 20px;
+            padding: 0 75px 0 20px;
             height: 60px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             position: fixed;
             top: 10px;
             right: 10px;
@@ -149,11 +149,14 @@
             border: 1px solid var(--widget-border-color);
             transition: left 0.4s ease;
         }
-
+		
         .logo {
             width: 45px;
             height: 45px;
-            position: relative;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
         }
         .logo img {
             width: 100%;
@@ -227,8 +230,10 @@
             border-radius: 25px;
             padding: 0 0 0 15px;
             height: 42px;
-            flex-shrink: 1;
             min-width: 200px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
         }
         .search-bar input[type="search"] {
             flex-grow: 1;
@@ -289,9 +294,9 @@
 			width: 35px;
 			height: 35px;
 			border-radius: 50%;
-			border: 1px solid #e0e0e0; /* <-- Used a solid color for the border */
-			background-color: #ffffff; /* CHANGED: Set a solid white background */
-			color: #333333; /* <-- Used a solid color for the icon */
+			border: 1px solid #e0e0e0; 
+			background-color: #ffffff;
+			color: #333333;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
@@ -308,19 +313,18 @@
             transition: transform 0.4s ease;
         }
         
-        /* Collapsed Sidebar State */
+        /* Collapsed Sidebar State - DESKTOP */
         body.sidebar-collapsed {
             padding-left: 40px;
         }
         body.sidebar-collapsed .left-sidebar {
-            transform: translateX(calc(-100% - 20px)); /* Hide completely */
+            transform: translateX(calc(-100% - 20px));
             box-shadow: none;
         }
         body.sidebar-collapsed header {
             left: 40px;
         }
         body.sidebar-collapsed #sidebarToggleBtn {
-            /* When collapsed, position button in the new left-hand gutter */
             left: 15px;
         }
          body.sidebar-collapsed #sidebarToggleBtn svg {
@@ -452,8 +456,8 @@
         .widgets-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px; /* Changed from 0 */
-            background: transparent; /* Changed from var(--widget-bg) */
+            gap: 20px; 
+            background: transparent;
         }
         
         .widget {
@@ -461,13 +465,12 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.2s ease;
-            /* Applying glass effect directly to widgets */
             background: var(--widget-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--widget-border-color);
             box-shadow: var(--box-shadow);
-            border-radius: 16px; /* Added rounded corners */
+            border-radius: 16px;
         }
         .widget:hover {
             transform: translateY(-2px) scale(1.01);
@@ -1140,8 +1143,9 @@
         }
         .pomodoro-timer-visual {
             position: relative;
-            width: 180px;
-            height: 180px;
+            width: 90%; /* CHANGED: Was 180px */
+            max-width: 180px; /* NEW: Added max width */
+            aspect-ratio: 1 / 1; /* NEW: Ensures it's a circle */
             margin: 0 auto 15px auto;
         }
         .pomodoro-timer-visual svg {
@@ -1536,26 +1540,148 @@
         .toast.toast-info { background-color: var(--accent-color); }
         .toast.toast-achievement { background: linear-gradient(45deg,#ffaf07,#f44336); }
         
-        /* Responsive Adjustments */
+        /* ======== RESPONSIVE ADJUSTMENTS ======== */
+
+        /* NEW: Mobile Sidebar Overlay */
+        body.mobile-sidebar-open::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
         @media (max-width: 1400px) {
             .widgets-container { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
         }
+
         @media (max-width: 992px) {
-            body { padding-left: 10px; padding-right: 10px; padding-top: 80px; }
-            header { left: 10px; }
-            .left-sidebar, #sidebarToggleBtn { display: none; } /* Hide sidebar and its toggle on smaller screens */
-            /* When sidebar is hidden by media query, remove the specific collapsed padding */
-            body.sidebar-collapsed { padding-left: 10px; }
-            .widgets-container { grid-template-columns: 1fr; }
+            body { 
+                padding-left: 10px; 
+                padding-right: 10px; 
+                padding-top: 80px;
+            }
+            header { 
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+            
+            /* --- Sidebar becomes an off-canvas menu on mobile --- */
+            .left-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 2000;
+                border-radius: 0;
+            }
+
+            /* --- Sidebar Toggle Button becomes the mobile menu trigger --- */
+            #sidebarToggleBtn {
+                position: fixed;
+                left: 20px;
+                top: 22px;
+                z-index: 2001;
+                transform: rotate(180deg);
+            }
+            #sidebarToggleBtn:hover {
+                transform: scale(1.1) rotate(180deg);
+            }
+            #sidebarToggleBtn svg {
+                 transform: rotate(0deg); /* Reset desktop rotation */
+            }
+
+            /* --- Mobile Sidebar Open State --- */
+            body.mobile-sidebar-open .left-sidebar {
+                transform: translateX(0);
+            }
+            body.mobile-sidebar-open #sidebarToggleBtn {
+                left: calc(280px + 10px);
+                transform: rotate(0deg);
+            }
+            body.mobile-sidebar-open #sidebarToggleBtn:hover {
+                transform: scale(1.1) rotate(0deg);
+            }
+
+            /* --- Override desktop collapsed state on mobile --- */
+            body.sidebar-collapsed { 
+                padding-left: 10px; /* Use mobile padding */
+            }
+            body.sidebar-collapsed .left-sidebar {
+                transform: translateX(-100%); /* Keep it hidden */
+            }
+            body.sidebar-collapsed header {
+                left: 10px; /* Use mobile header position */
+            }
+            body.sidebar-collapsed #sidebarToggleBtn {
+                left: 20px; /* Keep toggle in the corner */
+                transform: rotate(180deg);
+            }
+            body.sidebar-collapsed #sidebarToggleBtn svg {
+                transform: rotate(0deg); /* Reset svg rotation */
+            }
+
+            .widgets-container { 
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
         }
+
         @media (max-width: 768px) {
-            body { padding-top: 150px; }
-            header { flex-direction: column; align-items: flex-start; height: auto; padding: 10px; top: 10px; left: 10px; right: 10px; }
-            .logo { position: absolute; top: 10px; left: 15px; }
-            header nav { margin-top: 50px; width: 100%; display: flex; justify-content: space-around; }
-            .motivational-quote-banner { flex-direction: column; text-align: center; }
-            .pomodoro-timer-visual { width: 160px; height: 160px; }
-            #pomodoroDisplay { font-size: 2.4em; }
+            body { 
+                padding-top: 100px; /* REDUCED: Was 150px */
+            }
+            .main-content {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                height: auto; 
+                padding: 10px; 
+                top: 10px; 
+                left: 10px; 
+                right: 10px; 
+            }
+            .logo { 
+                position: absolute; 
+                top: 30px; 
+                right: 5px;
+                left: auto;
+            }
+            header nav { 
+                margin-top: 45px; 
+                width: 100%; 
+                display: flex; 
+                justify-content: space-around;
+                padding-right: 20px; 
+            }
+            .motivational-quote-banner { 
+                flex-direction: column; 
+                text-align: center; 
+            }
+            /* REMOVED fixed size for pomodoro visual */
+            #pomodoroDisplay { 
+                font-size: 2.4em; 
+            }
+            /* NEW: Compact widgets */
+            .widget {
+                padding: 15px;
+            }
+            .widget h2 {
+                font-size: 1.3em;
+                margin-bottom: 12px;
+            }
         }
     </style>
 </head>
@@ -1573,10 +1699,6 @@
             <a href="about.html" id="navAbout">About Us</a>
             <a href="resources.html" id="navResources">Resources</a>
         </nav>
-        <div class="search-bar">
-            <input type="search" id="searchInput" placeholder="Search tasks">
-            <button id="searchButton">🔍</button>
-        </div>
     </header>
 
     <aside class="left-sidebar">
@@ -1611,13 +1733,17 @@
     </aside>
 
     <!-- Sidebar Toggle Button is separate to remain clickable when sidebar is hidden -->
-    <button id="sidebarToggleBtn" title="Collapse Sidebar">
+    <button id="sidebarToggleBtn" title="Toggle Sidebar">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
     </button>
 
-    <main class="main-content">
+     <main class="main-content">
+        <div class="search-bar">
+            <input type="search" id="searchInput" placeholder="Search tasks">
+            <button id="searchButton">🔍</button>
+        </div>
         <section class="motivational-quote-banner glass">
             <p id="motivationalQuoteP">"Loading motivational quote..."</p>
         </section>
@@ -1647,8 +1773,8 @@
                 <div class="pomodoro-content-wrapper">
                     <div class="pomodoro-timer-visual">
                         <svg>
-                            <circle class="timer-circle-bg" cx="90" cy="90" r="80"></circle>
-                            <circle id="pomodoroProgress" class="timer-circle-progress" cx="90" cy="90" r="80"></circle>
+                            <circle class="timer-circle-bg" cx="50%" cy="50%" r="45%"></circle>
+                            <circle id="pomodoroProgress" class="timer-circle-progress" cx="50%" cy="50%" r="45%"></circle>
                         </svg>
                         <div id="pomodoroDisplay">25:00</div>
                     </div>
@@ -2219,10 +2345,12 @@
                 const seconds = String(timeLeft % 60).padStart(2, "0");
                 display.textContent = `${minutes}:${seconds}`;
                 if (progressCircle) {
+                    // Use percentage radius for calculations
                     const progress = (totalDuration - timeLeft) / totalDuration;
-                    const circumference = 2 * Math.PI * progressCircle.r.baseVal.value;
+                    const circumference = 2 * Math.PI * 45; // 45 is the percentage radius
                     const offset = circumference * (1 - progress);
                     progressCircle.style.strokeDashoffset = offset;
+                    progressCircle.style.strokeDasharray = circumference;
                 }
                 label.textContent = isBreak ? "Break" : "Focus";
                 sessionCounter.textContent = `${sessionCount} / ${totalSessionLimit}`;
@@ -3225,11 +3353,37 @@
             
             // --- Collapsible Sidebar Logic ---
             const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebar = document.querySelector('.left-sidebar');
+
             sidebarToggleBtn.addEventListener('click', () => {
-                document.body.classList.toggle('sidebar-collapsed');
-                const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-                localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+                // Check if we are in mobile view (matches the CSS breakpoint)
+                if (window.innerWidth <= 992) {
+                    document.body.classList.toggle('mobile-sidebar-open');
+                } else {
+                    document.body.classList.toggle('sidebar-collapsed');
+                    const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+                    localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+                }
             });
+            
+            // Add event listener to close mobile sidebar when clicking the overlay or a link
+            document.addEventListener('click', (e) => {
+                if (document.body.classList.contains('mobile-sidebar-open')) {
+                    // If the click is inside the sidebar, check if it's a button/link
+                    if (sidebar.contains(e.target) && e.target.tagName === 'BUTTON') {
+                         document.body.classList.remove('mobile-sidebar-open');
+                    }
+                    // If the click is outside the sidebar and not on the toggle button itself
+                    else if (!sidebar.contains(e.target) && !sidebarToggleBtn.contains(e.target)) {
+                        document.body.classList.remove('mobile-sidebar-open');
+                    }
+                }
+            });
+            
+            // Restore desktop sidebar state from local storage on page load
+            if (localStorage.getItem('sidebarState') === 'collapsed' && window.innerWidth > 992) {
+                document.body.classList.add('sidebar-collapsed');
+            }
             
 
             document.getElementById('sidebarStreakBtn')?.addEventListener('click', showStreakModal);
